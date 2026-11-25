@@ -1,0 +1,1494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TeamPick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+:root {
+  --bg: #f3f5f8; --surface: #ffffff; --ink: #14202b; --muted: #5a6876; --line: #d9e0e7;
+  --orange: #f2670f; --orange-ink: #b0440a; --on-orange: #14202b;
+  --jere: #1d63d8; --jere-bg: #e5eefd; --jesica: #7c3aed; --jesica-bg: #efe8fe;
+  --ok: #17804a; --ok-bg: #e2f4ea; --warn: #855600; --warn-bg: #fff0c7; --bad: #c22d22; --bad-bg: #fde7e5;
+  --qty-bg: #14202b; --qty-ink: #ffffff; --on-runner: #ffffff;
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151b; --surface: #19222c; --ink: #edf1f5; --muted: #9ba8b5; --line: #2b3744;
+    --orange: #ff7d1f; --orange-ink: #ff9d57; --on-orange: #14202b;
+    --jere: #74acff; --jere-bg: #172a4b; --jesica: #b999ff; --jesica-bg: #2a204e;
+    --ok: #4dc48b; --ok-bg: #12301f; --warn: #f1c453; --warn-bg: #3a2e0d; --bad: #ff8076; --bad-bg: #421b18;
+    --qty-bg: #edf1f5; --qty-ink: #0f151b; --on-runner: #0f151b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151b; --surface: #19222c; --ink: #edf1f5; --muted: #9ba8b5; --line: #2b3744;
+  --orange: #ff7d1f; --orange-ink: #ff9d57; --on-orange: #14202b;
+  --jere: #74acff; --jere-bg: #172a4b; --jesica: #b999ff; --jesica-bg: #2a204e;
+  --ok: #4dc48b; --ok-bg: #12301f; --warn: #f1c453; --warn-bg: #3a2e0d; --bad: #ff8076; --bad-bg: #421b18;
+  --qty-bg: #edf1f5; --qty-ink: #0f151b; --on-runner: #0f151b;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 60px); -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.4 var(--body); padding-bottom: 84px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; letter-spacing: 0.005em; line-height: 1.05; }
+h1 { font-size: 34px; } h2 { font-size: 25px; } h3 { font-size: 20px; }
+p { margin: 0; max-width: 62ch; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.muted { color: var(--muted); } .small { font-size: 14px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* top bar */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 620px; margin: 0 auto; padding: 8px 14px; display: flex; align-items: center; gap: 10px; min-height: 54px; }
+.mark { font: 700 26px/1 var(--display); background: none; border: 0; padding: 4px 0; display: flex; align-items: baseline; }
+.mark i { font-style: normal; color: var(--orange-ink); }
+.top-trip { flex: 1; min-width: 0; font-size: 13px; color: var(--muted); line-height: 1.25; }
+.top-trip b { display: block; color: var(--ink); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+.me { border: 2px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-weight: 600; min-height: 40px; white-space: nowrap; }
+.me.jere { border-color: var(--jere); color: var(--jere); background: var(--jere-bg); }
+.me.jesica { border-color: var(--jesica); color: var(--jesica); background: var(--jesica-bg); }
+
+main { max-width: 620px; margin: 0 auto; padding: 16px 14px 24px; }
+.stack > * + * { margin-top: 14px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.grow { flex: 1; min-width: 0; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.card.jere { border-top: 4px solid var(--jere); } .card.jesica { border-top: 4px solid var(--jesica); }
+.who-jere { color: var(--jere); } .who-jesica { color: var(--jesica); }
+
+.btn { border: 1.5px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 14px; min-height: 46px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.btn.primary { background: var(--orange); border-color: var(--orange); color: var(--on-orange); }
+.btn.wide { width: 100%; }
+.btn.quiet { border-color: transparent; background: transparent; color: var(--muted); min-height: 40px; padding: 6px 8px; text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.sm { min-height: 40px; padding: 6px 12px; font-size: 15px; }
+
+.field { display: block; } .field > span { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.in { width: 100%; background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 46px; }
+
+.seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: transparent; padding: 8px 14px; min-height: 42px; font-weight: 600; color: var(--muted); }
+.seg button + button { border-left: 1.5px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg button.jere[aria-pressed="true"] { background: var(--jere); color: var(--on-runner); }
+.seg button.jesica[aria-pressed="true"] { background: var(--jesica); color: var(--on-runner); }
+
+.banner { border-radius: 8px; padding: 10px 12px; font-size: 15px; background: var(--warn-bg); color: var(--warn); border: 1px solid currentColor; }
+.banner.bad { background: var(--bad-bg); color: var(--bad); } .banner.ok { background: var(--ok-bg); color: var(--ok); }
+.banner.plain { background: var(--surface); color: var(--muted); border-color: var(--line); }
+.pill { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 13px; font-weight: 600; background: var(--line); color: var(--ink); white-space: nowrap; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); } .pill.warn { background: var(--warn-bg); color: var(--warn); } .pill.bad { background: var(--bad-bg); color: var(--bad); }
+.flagtxt { color: var(--warn); font-size: 14px; font-weight: 500; }
+
+/* progress */
+.bar { height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--ok); border-radius: 5px; }
+.bar.jere > i { background: var(--jere); } .bar.jesica > i { background: var(--jesica); }
+
+/* customer bag tags */
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; max-width: 100%; }
+.tag b { flex: none; width: 22px; height: 22px; border-radius: 4px; display: grid; place-items: center; color: #fff; font: 700 15px/1 var(--display); }
+.tag span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t0 b { background: #0e7c86; } .t1 b { background: #b0307a; } .t2 b { background: #647214; } .t3 b { background: #8a5a2b; }
+.t4 b { background: #4a5a6a; } .t5 b { background: #0b6fa4; } .t6 b { background: #c2415b; } .t7 b { background: #2f7d4f; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; }
+
+/* department section */
+.dept { margin-top: 18px; }
+.dept-h { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: 0; padding: 6px 0; text-align: left; border-bottom: 2px solid var(--ink); }
+.dept-h h2 { flex: 1; } .dept-h .count { font: 600 18px/1 var(--display); color: var(--muted); }
+.dept-h .ico { font-size: 20px; }
+
+/* the pick row: quantity block reads like a shelf tag */
+.pick { display: grid; grid-template-columns: 58px 1fr 56px; align-items: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; margin-top: 8px; overflow: hidden; }
+.pick .qty { background: var(--qty-bg); color: var(--qty-ink); display: grid; place-items: center; font: 700 34px/1 var(--display); padding: 6px 2px; }
+.pick .qty small { display: block; font: 600 12px/1 var(--body); opacity: 0.75; margin-top: 2px; text-align: center; }
+.pick .body { padding: 9px 10px; min-width: 0; background: none; border: 0; text-align: left; }
+.pick .name { font-size: 18px; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.pick .meta { font-size: 14px; color: var(--muted); margin-top: 1px; }
+.pick .note { font-size: 14px; color: var(--warn); margin-top: 3px; }
+.pick .check { border: 0; border-left: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; }
+.pick .check span { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--muted); display: grid; place-items: center; font-size: 20px; font-weight: 700; color: transparent; }
+.pick.done { opacity: 0.62; } .pick.done .qty { background: var(--ok); color: #fff; }
+.pick.done .check span { background: var(--ok); border-color: var(--ok); color: #fff; }
+.pick.oos .qty, .pick.oos .check span { background: var(--bad); border-color: var(--bad); color: #fff; }
+.pick.part .qty { background: var(--warn-bg); color: var(--warn); }
+.pick .more { grid-column: 1 / -1; border-top: 1px dashed var(--line); padding: 10px; }
+.lineops { padding: 8px 0; } .lineops + .lineops { border-top: 1px solid var(--line); }
+.step { display: inline-flex; align-items: center; border: 1.5px solid var(--line); border-radius: 8px; overflow: hidden; }
+.step button { border: 0; background: var(--surface); width: 42px; min-height: 40px; font-size: 20px; font-weight: 700; }
+.step output { min-width: 58px; text-align: center; font-weight: 600; }
+
+/* review rows */
+.rv { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-top: 6px; text-align: left; }
+.rv .q { font: 700 26px/1 var(--display); text-align: center; }
+.rv.flagged { border-left: 5px solid var(--warn); }
+.rv .nm { font-weight: 600; overflow-wrap: anywhere; }
+
+/* split */
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vs .big { font: 700 40px/1 var(--display); }
+.drow { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.drow .dn { font-weight: 600; font-size: 17px; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 8px; }
+.facts div b { display: block; font: 700 26px/1 var(--display); }
+.facts div span { font-size: 13px; color: var(--muted); }
+
+/* uploads */
+.drop { display: block; border: 2px dashed var(--line); border-radius: 10px; padding: 16px; text-align: center; font-weight: 600; cursor: pointer; }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.drop:focus-within { outline: 3px solid var(--orange); outline-offset: 2px; }
+.rec { border-top: 1px solid var(--line); padding: 10px 0; }
+.rec .fn { font-weight: 600; overflow-wrap: anywhere; }
+
+/* bottom nav */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.nav-in { max-width: 620px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); }
+.nav button { border: 0; background: none; padding: 8px 2px 9px; min-height: 58px; font-size: 13px; font-weight: 600; color: var(--muted); display: grid; justify-items: center; gap: 3px; position: relative; }
+.nav button svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav button[aria-current="page"] { color: var(--ink); box-shadow: inset 0 3px 0 var(--orange); }
+.nav .badge { position: absolute; top: 5px; left: calc(50% + 6px); background: var(--warn-bg); color: var(--warn); border: 1px solid currentColor; border-radius: 999px; font-size: 11px; padding: 0 5px; line-height: 16px; }
+
+/* sheet + toast */
+.scrim { position: fixed; inset: 0; z-index: 20; background: rgba(8, 14, 20, 0.55); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--surface); width: 100%; max-width: 620px; max-height: 92%; overflow: auto; border-radius: 14px 14px 0 0; padding: 16px 14px calc(18px + env(safe-area-inset-bottom, 0px)); }
+.sheet h2 { margin-bottom: 12px; }
+.toast { position: fixed; left: 12px; right: 12px; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 30; margin: 0 auto; max-width: 520px; background: var(--ink); color: var(--bg); padding: 12px 14px; border-radius: 8px; font-weight: 500; }
+.toast:empty { display: none; }
+details > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+@media (min-width: 700px) { h1 { font-size: 40px; } }
+@media (prefers-reduced-motion: no-preference) { .bar > i { transition: width 0.2s; } }
+
+</style>
+</head>
+<body>
+<header class="top" id="top"></header>
+<main id="view"></main>
+<nav class="nav" id="nav" aria-label="Trip sections" hidden></nav>
+<div id="sheet"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+/* TeamPick logic: no DOM, no network. Everything here is unit-tested in node. */
+const TP = (() => {
+  const RUNNERS = { jere: "Jere", jesica: "Jesica" };
+  const other = (r) => (r === "jere" ? "jesica" : "jere");
+
+  // id, name, icon, zone, seconds per product, fixed seconds (walk + counter wait), pick order.
+  // Times are rough planning estimates, not measurements. Pick order runs shelf-stable first, cold last.
+  const DEPTS = [
+    ["pharmacy", "Pharmacy and OTC", "💊", "nonfood", 35, 60, 1],
+    ["hb", "Health and beauty", "🧴", "nonfood", 35, 60, 2],
+    ["baby", "Baby", "🍼", "nonfood", 30, 60, 3],
+    ["household", "Household", "🧻", "nonfood", 25, 60, 4],
+    ["cleaning", "Cleaning", "🧽", "nonfood", 25, 60, 5],
+    ["pet", "Pet", "🐾", "nonfood", 30, 60, 6],
+    ["pantry", "Pantry", "🍝", "center", 30, 60, 7],
+    ["canned", "Canned goods", "🥫", "center", 25, 45, 8],
+    ["snacks", "Snacks", "🥨", "center", 25, 45, 9],
+    ["beverages", "Beverages", "🥤", "center", 25, 60, 10],
+    ["other", "Other", "📦", "other", 40, 60, 11],
+    ["floral", "Floral", "💐", "fresh", 40, 45, 12],
+    ["produce", "Produce", "🥬", "fresh", 45, 60, 13],
+    ["bakery", "Bakery", "🍞", "fresh", 30, 45, 14],
+    ["deli", "Deli", "🧀", "counter", 50, 240, 15],
+    ["prepared", "Prepared foods", "🍗", "counter", 30, 45, 16],
+    ["meat", "Meat", "🥩", "counter", 40, 60, 17],
+    ["seafood", "Seafood", "🐟", "counter", 45, 210, 18],
+    ["dairy", "Dairy", "🥛", "cold", 25, 60, 19],
+    ["frozen", "Frozen", "🧊", "cold", 25, 60, 20],
+  ].map(([id, name, icon, zone, per, fixed, order]) => ({ id, name, icon, zone, per, fixed, order }));
+  const DEPT = Object.fromEntries(DEPTS.map((d) => [d.id, d]));
+  const ZONE_NAMES = { nonfood: "non-food aisles", center: "center aisles", fresh: "fresh departments", counter: "service counters", cold: "cold cases", other: "other" };
+
+  const KEYWORDS = [
+    ["produce", /\b(banana|avocado|tomato|onion|lettuce|spinach|pepper|cilantro|lemon|lime|apple|berr(y|ies)|grape|potato|carrot|celery|garlic|cucumber|squash|kale|orange|melon|mushroom)s?\b/],
+    ["meat", /\b(chicken breast|ground beef|steak|pork|bacon|sausage|ribs|brisket|ground turkey|chicken thigh)s?\b/],
+    ["seafood", /\b(salmon|shrimp|tilapia|cod|crab|tuna steak|catfish|scallop)s?\b/],
+    ["deli", /\b(sliced|deli|provolone|salami|prosciutto|hummus)\b/],
+    ["bakery", /\b(bread|tortilla|bun|bagel|muffin|loaf|croissant|donut|cake|roll)s?\b/],
+    ["dairy", /\b(milk|egg|butter|cheese|yogurt|cream|creamer)s?\b/],
+    ["frozen", /\b(frozen|ice cream|pizza|waffle|popsicle)s?\b/],
+    ["beverages", /\b(water|juice|soda|cola|coffee|tea|sparkling|beer|wine|gatorade)\b/],
+    ["snacks", /\b(chip|cracker|cookie|pretzel|popcorn|candy|granola bar)s?\b/],
+    ["canned", /\b(canned|beans|broth|soup|diced tomatoes|tuna)\b/],
+    ["cleaning", /\b(detergent|bleach|dish soap|cleaner|sponge|disinfect\w*)\b/],
+    ["household", /\b(paper towel|toilet paper|trash bag|foil|napkin|ziploc|batter(y|ies))s?\b/],
+    ["hb", /\b(shampoo|conditioner|toothpaste|deodorant|lotion|razor|body wash|soap)\b/],
+    ["pharmacy", /\b(ibuprofen|tylenol|acetaminophen|allergy|vitamin|bandage|cough)s?\b/],
+    ["baby", /\b(diaper|wipes|formula|baby)s?\b/],
+    ["pet", /\b(dog|cat|pet|litter)\b/],
+    ["pantry", /\b(rice|pasta|spaghetti|sauce|flour|sugar|oil|cereal|peanut butter|salsa|spice|honey|oats)\b/],
+  ];
+
+  /* ---------- text matching ---------- */
+  const normName = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/h[\s\-‑.]?e[\s\-‑.]?b\b/g, "heb")
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9%/.]+/g, " ")
+      .replace(/(^|\s)[./]+|[./]+(\s|$)/g, " ")
+      .trim()
+      .replace(/\s+/g, " ");
+  const normSize = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .replace(/fluid ounces?|fl\.? ?oz\.?/g, "floz")
+      .replace(/ounces?|oz\./g, "oz")
+      .replace(/pounds?|lbs?\.?/g, "lb")
+      .replace(/gallons?|gal\./g, "gal")
+      .replace(/quarts?|qt\./g, "qt")
+      .replace(/counts?|ct\./g, "ct")
+      .replace(/packs?|pk\./g, "pk")
+      .replace(/approx(imately)?\.?|about|avg\.?/g, "")
+      .replace(/[^a-z0-9/.]+/g, "");
+  const productKey = (name, size) => normName(name) + "|" + normSize(size);
+
+  function lev(a, b) {
+    if (a === b) return 0;
+    const m = a.length, n = b.length;
+    if (!m || !n) return m + n;
+    let prev = Array.from({ length: n + 1 }, (_, i) => i);
+    for (let i = 1; i <= m; i++) {
+      const cur = [i];
+      for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = cur;
+    }
+    return prev[n];
+  }
+  const nearTok = (a, b) => a === b || (Math.min(a.length, b.length) >= 4 && lev(a, b) <= (Math.max(a.length, b.length) > 6 ? 2 : 1));
+
+  /* Same row seen twice (OCR wobble), never two different flavours. */
+  function sameProduct(a, b) {
+    const sa = normSize(a.size), sb = normSize(b.size);
+    if (sa && sb && sa !== sb) return false;
+    const na = normName(a.name), nb = normName(b.name);
+    if (!na || !nb) return false;
+    if (na === nb) return true;
+    const ta = na.split(" "), tb = nb.split(" ");
+    if (a.cut || b.cut) {
+      // A row cut off at the frame edge: its words must be a leading run of the full row's words.
+      const [short, long] = ta.length <= tb.length ? [ta, tb] : [tb, ta];
+      if (short.length < 2) return false;
+      return short.every((t, i) => long[i] === t || (i === short.length - 1 && long[i] && long[i].startsWith(t)));
+    }
+    if (ta.length !== tb.length) return false;
+    let diffs = 0;
+    for (let i = 0; i < ta.length; i++) {
+      if (ta[i] === tb[i]) continue;
+      if (!nearTok(ta[i], tb[i]) || /\d/.test(ta[i] + tb[i])) return false;
+      diffs++;
+    }
+    return diffs <= Math.max(1, Math.floor(ta.length / 4));
+  }
+
+  /* ---------- cleaning what the model returned ---------- */
+  const str = (v, max = 160) => (v == null ? "" : String(v).trim().slice(0, max));
+  function guessDept(name) {
+    const n = normName(name);
+    for (const [id, re] of KEYWORDS) if (re.test(n)) return id;
+    return "other";
+  }
+  function cleanItem(raw, frameBase = 0) {
+    if (!raw || typeof raw !== "object") return null;
+    const name = str(raw.name);
+    if (!name) return null;
+    const flags = [];
+    let qty = Number(raw.qty);
+    const qtyShown = raw.qtyShown !== false;
+    if (!Number.isFinite(qty) || qty <= 0 || qty > 999) { qty = 1; flags.push("qty"); }
+    else if (!qtyShown) flags.push("qty");
+    qty = Math.round(qty * 100) / 100;
+    let dept = str(raw.dept, 20).toLowerCase();
+    if (!DEPT[dept]) { dept = guessDept(name); flags.push("dept"); }
+    else if (dept === "other") flags.push("dept");
+    let conf = Number(raw.conf);
+    if (!Number.isFinite(conf)) conf = 0.5;
+    conf = Math.max(0, Math.min(1, conf));
+    if (conf < 0.7) flags.push("conf");
+    const cut = raw.cut === true;
+    if (cut) flags.push("cut");
+    const price = Number(raw.price);
+    return {
+      name, brand: str(raw.brand, 60), qty, qtyShown, size: str(raw.size, 40), customer: str(raw.customer, 60),
+      dept, aisle: str(raw.aisle, 40), note: str(raw.note, 240), sub: str(raw.sub, 160),
+      price: Number.isFinite(price) && price > 0 ? price : null, conf, cut,
+      done: raw.done === true, frame: frameBase + (Number.isFinite(Number(raw.frame)) ? Math.max(0, Number(raw.frame) - 1) : 0), flags,
+    };
+  }
+
+  const custEq = (a, b) => normName(a) === normName(b);
+
+  /* Collapse repeat sightings of one row across overlapping frames of ONE recording.
+     Quantities are never added together here: a second sighting is the same row, not more units. */
+  function dedupe(items) {
+    const out = [];
+    const sorted = [...items].sort((a, b) => a.frame - b.frame);
+    for (const it of sorted) {
+      const hit = out.find((r) => (!r.customer || !it.customer || custEq(r.customer, it.customer)) && sameProduct(r, it));
+      if (!hit) { out.push({ ...it, flags: [...it.flags], seen: 1 }); continue; }
+      const flags = new Set([...hit.flags, ...it.flags]);
+      const bothShown = hit.qtyShown && it.qtyShown;
+      if (hit.qty !== it.qty) {
+        if (bothShown) { hit.qtyClash = true; if (it.conf > hit.conf) hit.qty = it.qty; }
+        else if (it.qtyShown) hit.qty = it.qty;
+      }
+      hit.qtyShown = hit.qtyShown || it.qtyShown;
+      if (hit.qtyClash || !hit.qtyShown) flags.add("qty"); else flags.delete("qty");
+      if (hit.cut && !it.cut) { hit.name = it.name; hit.cut = false; }
+      else if (!hit.cut && !it.cut && it.conf > hit.conf) hit.name = it.name;
+      if (!hit.cut) flags.delete("cut");
+      for (const k of ["brand", "size", "customer", "aisle", "note", "sub"]) if (!hit[k] && it[k]) hit[k] = it[k];
+      if (hit.price == null) hit.price = it.price;
+      if (hit.dept === "other" && it.dept !== "other") { hit.dept = it.dept; flags.delete("dept"); }
+      hit.conf = Math.max(hit.conf, it.conf);
+      if (hit.conf >= 0.7) flags.delete("conf");
+      hit.done = hit.done || it.done;
+      hit.seen++;
+      hit.flags = [...flags];
+    }
+    return out;
+  }
+
+  /* Rows with no visible customer: use the runner's label for the recording if given,
+     otherwise carry the last header forward and flag it. Never invent a name. */
+  function fillCustomers(items, label) {
+    let last = "";
+    return items.map((it) => {
+      const o = { ...it, flags: [...it.flags] };
+      if (o.customer) { last = o.customer; return o; }
+      if (label) { o.customer = label; return o; }
+      o.customer = last;
+      if (!o.flags.includes("cust")) o.flags.push("cust");
+      return o;
+    });
+  }
+
+  /* ---------- workload ---------- */
+  // lines: [{dept, key, qty, open}]  ->  { dept: {secs, products, units} }
+  function effort(lines, onlyOpen) {
+    const by = {};
+    for (const l of lines) {
+      if (onlyOpen && !l.open) continue;
+      const d = (by[l.dept] ||= { keys: new Set(), units: 0 });
+      d.keys.add(l.key);
+      d.units += l.qty;
+    }
+    const res = {};
+    for (const [id, d] of Object.entries(by)) {
+      const def = DEPT[id] || DEPT.other;
+      const products = d.keys.size;
+      const extra = Math.max(0, Math.min(20, Math.round(d.units) - products));
+      res[id] = { secs: def.fixed + def.per * products + 4 * extra, products, units: d.units };
+    }
+    return res;
+  }
+
+  /* Choose an owner per department to finish soonest: minimise the slower shopper's time,
+     with a penalty for splitting neighbouring departments and for moving work already assigned. */
+  function balance(eff, opts = {}) {
+    const { pins = {}, current = {}, stick = 0 } = opts;
+    const ids = Object.keys(eff).sort((a, b) => (DEPT[a] || DEPT.other).order - (DEPT[b] || DEPT.other).order);
+    const free = ids.filter((d) => !pins[d]);
+    const base = { jere: 0, jesica: 0 };
+    for (const d of ids) if (pins[d]) base[pins[d]] += eff[d].secs;
+    const zones = {};
+    ids.forEach((d) => (zones[(DEPT[d] || DEPT.other).zone] ||= []).push(d));
+    const zoneList = Object.values(zones).filter((z) => z.length > 1);
+    const SPLIT = 45;
+    let best = null, bestCost = Infinity;
+    const n = Math.min(free.length, 20);
+    const owner = { ...pins };
+    for (let mask = 0; mask < 1 << n; mask++) {
+      let a = base.jere, b = base.jesica, moved = 0;
+      for (let i = 0; i < n; i++) {
+        const r = mask & (1 << i) ? "jesica" : "jere";
+        owner[free[i]] = r;
+        if (r === "jere") a += eff[free[i]].secs; else b += eff[free[i]].secs;
+        if (current[free[i]] && current[free[i]] !== r) moved++;
+      }
+      let cost = Math.max(a, b) + 0.05 * Math.abs(a - b) + stick * moved + 0.001 * moved;
+      for (const z of zoneList) if (z.some((d) => owner[d] !== owner[z[0]])) cost += SPLIT;
+      if (cost < bestCost - 1e-9) { bestCost = cost; best = { ...owner }; }
+    }
+    const owners = best || { ...pins };
+    for (const d of free.slice(n)) owners[d] = "jere";
+    const totals = { jere: 0, jesica: 0 };
+    ids.forEach((d) => (totals[owners[d]] += eff[d].secs));
+    const reasons = explain(Object.keys(eff), owners, pins);
+    return { owners, totals, reasons };
+  }
+
+  // Plain-language reason for each department's owner.
+  function explain(ids, owners, pins = {}) {
+    const zones = {};
+    ids.forEach((d) => (zones[(DEPT[d] || DEPT.other).zone] ||= []).push(d));
+    const out = {};
+    for (const d of ids) {
+      const z = (DEPT[d] || DEPT.other).zone;
+      const mates = zones[z].filter((x) => x !== d);
+      if (pins[d]) out[d] = "You set this one";
+      else if (mates.length && mates.every((x) => owners[x] === owners[d])) out[d] = "Kept with the other " + ZONE_NAMES[z];
+      else out[d] = "Evens out the estimated time";
+    }
+    return out;
+  }
+
+  /* ---------- scroll detection for screen recordings ---------- */
+  const BANDS = 12;
+  // rgba pixel data -> per-row luminance signature over the middle of the screen
+  function rowSig(data, w, h) {
+    const sig = new Float32Array(h * BANDS);
+    const x0 = Math.floor(w * 0.06), x1 = Math.ceil(w * 0.94), bw = (x1 - x0) / BANDS;
+    for (let y = 0; y < h; y++) {
+      for (let b = 0; b < BANDS; b++) {
+        let s = 0, c = 0;
+        for (let x = Math.floor(x0 + b * bw); x < Math.floor(x0 + (b + 1) * bw); x++) {
+          const i = (y * w + x) * 4;
+          s += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          c++;
+        }
+        sig[y * BANDS + b] = c ? s / c : 0;
+      }
+    }
+    return sig;
+  }
+  // How far did the content move between two frames? Ignores the top and bottom 14% (status and tab bars).
+  function motion(a, b, h) {
+    const y0 = Math.floor(h * 0.14), y1 = Math.ceil(h * 0.86), span = y1 - y0, maxS = Math.floor(span * 0.7);
+    const score = (s) => {
+      let sum = 0, n = 0;
+      const from = Math.max(y0, y0 - s), to = Math.min(y1, y1 - s);
+      for (let y = from; y < to; y++) {
+        const ia = (y + s) * BANDS, ib = y * BANDS;
+        for (let k = 0; k < BANDS; k++) { sum += Math.abs(a[ia + k] - b[ib + k]); n++; }
+      }
+      return n ? sum / n : Infinity;
+    };
+    const zero = score(0);
+    if (zero < 1.5) return { kind: "still", shift: 0, frac: 0 };
+    let bestS = 0, best = zero;
+    for (let s = -maxS; s <= maxS; s++) { const v = score(s); if (v < best) { best = v; bestS = s; } }
+    if (bestS !== 0 && best < 5 && best < zero * 0.3) return { kind: "scroll", shift: bestS, frac: Math.abs(bestS) / span };
+    if (zero < 10 || (Math.abs(bestS) <= 3 && best < zero)) return { kind: "scroll", shift: bestS, frac: 0.05 }; // barely moved: not worth a frame yet
+    return { kind: "change", shift: 0, frac: 1 };
+  }
+
+  /* ---------- misc ---------- */
+  function deepMerge(base, patch) {
+    if (patch === null || typeof patch !== "object" || Array.isArray(patch)) return patch;
+    const out = base && typeof base === "object" && !Array.isArray(base) ? { ...base } : {};
+    for (const k of Object.keys(patch)) out[k] = deepMerge(out[k], patch[k]);
+    return out;
+  }
+  const fmtQty = (q) => (Number.isInteger(q) ? String(q) : String(Math.round(q * 100) / 100));
+  const mins = (secs) => Math.max(1, Math.round(secs / 60));
+
+  return { RUNNERS, other, DEPTS, DEPT, ZONE_NAMES, normName, normSize, productKey, sameProduct, guessDept, cleanItem, dedupe, fillCustomers, custEq, effort, balance, explain, rowSig, motion, deepMerge, fmtQty, mins, BANDS };
+})();
+
+
+</script>
+<script>
+/* Standalone adapter.
+   Inside Claude the page is handed a `window.claude` with shared storage and image reading.
+   On your own host there is no such thing, so this file provides the same small surface
+   backed by this repo's /api routes. If neither exists (a bare static host, or the file opened
+   from disk) it steps aside and the app keeps everything on the one phone. */
+(() => {
+  "use strict";
+  if (window.claude && window.claude.use) return;
+  const LS = "tp.code";
+  const lsGet = () => { try { return localStorage.getItem(LS) || ""; } catch { return ""; } };
+  const lsSet = (v) => { try { localStorage.setItem(LS, v); } catch {} };
+  let code = lsGet();
+  const headers = () => ({ "content-type": "application/json", "x-team-code": code });
+  const domReady = new Promise((r) => (document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", r, { once: true }) : r()));
+
+  function askCode(problem) {
+    return domReady.then(() => new Promise((resolve) => {
+      const mk = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+      const scrim = mk("div", "scrim"), sheet = mk("div", "sheet"), input = mk("input", "in"), go = mk("button", "btn primary wide", "Open TeamPick");
+      sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-label", "Team passcode");
+      input.type = "password"; input.autocomplete = "current-password"; input.setAttribute("aria-label", "Team passcode"); input.placeholder = "Team passcode";
+      go.type = "button"; go.style.marginTop = "12px";
+      const submit = () => { const v = input.value.trim(); if (!v) { input.focus(); return; } scrim.remove(); resolve(v); };
+      go.addEventListener("click", submit);
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+      sheet.append(mk("h2", "", "Team passcode"), mk("p", "muted", problem || "Enter the passcode you two share to open your trips."), mk("div", "", ""), input, go);
+      sheet.children[2].style.height = "12px";
+      scrim.append(sheet); document.body.append(scrim); input.focus();
+    }));
+  }
+
+  const boot = (async () => {
+    let info = null;
+    try { const r = await fetch("/api/data?health=1", { cache: "no-store" }); if (r.ok) info = await r.json(); } catch {}
+    if (!info || !info.passcode || (!info.storage && !info.reading)) return null;
+    window.TP_STANDALONE = true;
+    let problem = "";
+    for (;;) {
+      if (code) {
+        const r = await fetch("/api/data?ping=1", { headers: headers(), cache: "no-store" }).catch(() => null);
+        if (r && r.ok) break;
+        if (!r || r.status !== 401) return null; // server trouble: fall back to this phone only
+        problem = "That passcode didn’t work. Try again.";
+      }
+      code = await askCode(problem);
+      lsSet(code);
+    }
+    return info;
+  })();
+
+  /* ---------- shared storage: polls for changes, writes go straight through ---------- */
+  const cache = new Map(); // path -> { v, data }
+  const subs = new Set();
+  let loaded = false, polling = false, writeSeq = 0, started = false;
+  const META = { fromCache: false, hasPendingWrites: false };
+  const notify = () => subs.forEach((f) => { try { f(); } catch (e) { console.error(e); } });
+  async function api(method, qs, body) {
+    let r;
+    try { r = await fetch("/api/data" + qs, { method, headers: headers(), body: body ? JSON.stringify(body) : undefined, cache: "no-store" }); }
+    catch { throw { code: "unavailable", message: "network" }; }
+    if (!r.ok) throw { code: r.status === 401 ? "not_granted" : [400, 404, 413].includes(r.status) ? "invalid_argument" : "unavailable", message: "HTTP " + r.status };
+    return r.json();
+  }
+  async function poll() {
+    if (polling) return;
+    polling = true;
+    try {
+      const seq = writeSeq;
+      const { docs } = await api("GET", "");
+      const want = docs.filter((d) => !cache.has(d.path) || cache.get(d.path).v !== d.v).map((d) => d.path);
+      const got = want.length ? (await api("GET", "?paths=" + encodeURIComponent(want.join(",")))).docs : [];
+      if (seq !== writeSeq) return; // we wrote while this was in flight: these answers may be older than ours
+      let changed = !loaded;
+      const seen = new Set(docs.map((d) => d.path));
+      for (const p of [...cache.keys()]) if (!seen.has(p)) { cache.delete(p); changed = true; }
+      for (const d of got) { cache.set(d.path, { v: d.v, data: d.data }); changed = true; }
+      loaded = true;
+      if (changed) notify();
+    } catch {} finally { polling = false; }
+  }
+  function start() {
+    if (started) return;
+    started = true;
+    poll();
+    setInterval(() => { if (document.visibilityState === "visible") poll(); }, 4000);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") poll(); });
+  }
+  async function write(body) {
+    writeSeq++;
+    try {
+      const d = await api("POST", "", body);
+      if (body.op === "delete") cache.delete(body.path); else cache.set(d.path, { v: d.v, data: d.data });
+    } finally { writeSeq++; }
+    setTimeout(notify, 0);
+  }
+  const db = {
+    doc(path) {
+      const id = path.split("/").pop();
+      return {
+        id, path,
+        set: (data) => write({ op: "set", path, data }),
+        update: (patch) => write({ op: "update", path, patch }),
+        delete: () => write({ op: "delete", path }),
+        onSnapshot(next) {
+          const f = () => { if (!loaded) return; const c = cache.get(path); next({ id, exists: !!c, data: () => (c ? c.data : undefined), metadata: META }); };
+          subs.add(f); start(); if (loaded) setTimeout(f, 0);
+          return () => subs.delete(f);
+        },
+      };
+    },
+    collection(name) {
+      const q = {
+        orderBy: () => q, limit: () => q,
+        onSnapshot(next) {
+          const f = () => {
+            if (!loaded) return;
+            const docs = [...cache].filter(([p]) => p.startsWith(name + "/")).map(([p, c]) => ({ id: p.slice(name.length + 1), exists: true, data: () => c.data, metadata: META }));
+            next({ docs, size: docs.length, empty: !docs.length, metadata: META });
+          };
+          subs.add(f); start(); if (loaded) setTimeout(f, 0);
+          return () => subs.delete(f);
+        },
+      };
+      return q;
+    },
+  };
+
+  /* ---------- reading: frames go to /api/read, which holds the API key ---------- */
+  const b64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1]); r.onerror = () => rej({ code: "image_rejected" }); r.readAsDataURL(blob); });
+  async function prep(blob) {
+    if (blob.type === "image/jpeg" && blob.size < 450_000) return { media_type: "image/jpeg", data: await b64(blob) };
+    let bmp;
+    try { bmp = await createImageBitmap(blob); } catch { throw { code: "image_rejected", message: "could not open image" }; }
+    const s = Math.min(1, 1568 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    const jpg = await new Promise((res) => c.toBlob(res, "image/jpeg", 0.82));
+    if (!jpg) throw { code: "image_rejected", message: "could not convert image" };
+    return { media_type: "image/jpeg", data: await b64(jpg) };
+  }
+  const sample = async () => { throw { code: "capability_removed", message: "only sample.json is available here" }; };
+  sample.limits = async () => ({ maxPromptBytes: 20000, images: { maxCount: 4, maxInputBytes: 20e6, mediaTypes: ["image/jpeg", "image/png", "image/webp"] } });
+  sample.json = async (prompt, opts = {}) => {
+    const list = opts.images ? (opts.images instanceof Blob ? [opts.images] : [...opts.images]) : [];
+    const images = [];
+    for (const b of list) images.push(await prep(b));
+    let r;
+    try { r = await fetch("/api/read", { method: "POST", headers: headers(), signal: opts.signal, body: JSON.stringify({ prompt, images, tier: opts.modelTier === "quick" ? "quick" : "default" }) }); }
+    catch (e) { throw { code: e && e.name === "AbortError" ? "cancelled" : "upstream_error", message: "network" }; }
+    if (r.ok) return (await r.json()).result;
+    let msg = "HTTP " + r.status;
+    try { msg = (await r.json()).error || msg; } catch {}
+    console.warn("TeamPick reading:", msg);
+    const code = r.status === 401 ? "not_granted" : r.status === 429 ? "rate_limited" : r.status === 413 || r.status === 400 ? "image_rejected" : r.status === 422 ? (msg === "refused" ? "refused" : "invalid_json") : "upstream_error";
+    throw { code, message: msg };
+  };
+
+  window.claude = {
+    use: async (name) => {
+      const info = await boot;
+      if (!info) return null;
+      if (name === "db") return info.storage ? db : null;
+      if (name === "sample") return info.reading ? sample : null;
+      if (name === "user") return { can: async () => true };
+      return null;
+    },
+  };
+})();
+
+</script>
+<script>
+(() => {
+  "use strict";
+  const { RUNNERS, DEPTS, DEPT, other } = TP;
+  const VIEWS = ["home", "orders", "review", "split", "jere", "jesica", "checkout"];
+  const MAX_FRAMES = 48;
+  const FLAG_TEXT = { qty: "Quantity wasn’t clear", cust: "Customer not shown, check it", cut: "Cut off in the recording", conf: "Hard to read", dup: "May be a repeat", dept: "Department is a guess" };
+
+  /* ---------- tiny helpers ---------- */
+  const lsGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+  const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} };
+  let uidN = 0;
+  const uid = () => Date.now().toString(36) + (uidN++).toString(36) + Math.random().toString(36).slice(2, 6);
+  const el = (tag, attrs, ...kids) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === "class") e.className = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+      else if (k === "value") e.value = v;
+      else e.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat(Infinity)) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(String(c)));
+    return e;
+  };
+  const icon = (d) => {
+    const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true");
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d); s.append(p);
+    return s;
+  };
+  const plural = (n, one, many) => `${TP.fmtQty(n)} ${n === 1 ? one : many || one + "s"}`;
+  const toastEl = document.getElementById("toast");
+  let toastT;
+  const toast = (msg) => { toastEl.textContent = msg; clearTimeout(toastT); toastT = setTimeout(() => (toastEl.textContent = ""), 5000); };
+
+  /* ---------- state ---------- */
+  const ui = { me: lsGet("tp.me"), tripId: lsGet("tp.trip"), view: "home", q: "", openKey: null, onlyFlags: false, collapsed: {}, tier: lsGet("tp.tier") === "quick" ? "quick" : "default" };
+  const cap = { db: null, sample: null, sampleReady: false, maxImages: 0 };
+  const store = { mode: "loading", snap: {}, readOnly: false, stale: false };
+  let deptMap = {};
+  const Q = {}; // per-trip write queue
+  const recs = []; // recordings waiting on this phone (never stored)
+  let job = null;
+
+  /* ---------- storage: shared db when the page has it, this phone otherwise ---------- */
+  const saveLocal = () => lsSet("tp.trips", JSON.stringify(store.snap));
+  function loadLocal() { try { return JSON.parse(lsGet("tp.trips") || "{}") || {}; } catch { return {}; } }
+  function overlay(id) {
+    const q = Q[id]; if (!q) return null;
+    let o = null;
+    for (const p of [q.settled, q.inflight, q.pending]) if (p) o = o ? TP.deepMerge(o, p) : p;
+    return o;
+  }
+  function tripView(id) {
+    const base = store.snap[id]; if (!base) return null;
+    const o = overlay(id);
+    return o ? TP.deepMerge(base, o) : base;
+  }
+  const cur = () => (ui.tripId ? tripView(ui.tripId) : null);
+  function writeFailed(e) {
+    const code = e && e.code;
+    if (code === "invalid_argument" || code === "not_granted" || code === "revoked") { store.readOnly = true; toast("That didn’t save. You can view this trip but not change it."); }
+    else if (code === "quota_exceeded") toast("Storage for this page is full. Delete an old trip and try again.");
+    else toast("That didn’t save. Check your connection and try again.");
+  }
+  async function cloudWrite(fn) {
+    try { return await fn(); }
+    catch (e) {
+      if (e && e.code === "unavailable") { await new Promise((r) => setTimeout(r, 600 + Math.random() * 600)); return fn(); }
+      throw e;
+    }
+  }
+  function patchTrip(id, patch) {
+    if (store.readOnly) { toast("You can view this trip but not change it."); return; }
+    const q = (Q[id] ||= { busy: false, pending: null, inflight: null, settled: null });
+    q.pending = q.pending ? TP.deepMerge(q.pending, patch) : patch;
+    render(); pump(id);
+  }
+  async function pump(id) {
+    const q = Q[id];
+    if (!q || q.busy || !q.pending) return;
+    q.busy = true; q.inflight = q.pending; q.pending = null;
+    try {
+      if (store.mode === "cloud") {
+        await cloudWrite(() => cap.db.doc("trips/" + id).update(q.inflight));
+        q.settled = q.settled ? TP.deepMerge(q.settled, q.inflight) : q.inflight;
+      } else if (store.snap[id]) { store.snap[id] = TP.deepMerge(store.snap[id], q.inflight); saveLocal(); }
+    } catch (e) { writeFailed(e); }
+    q.inflight = null; q.busy = false;
+    render();
+    if (q.pending) pump(id);
+  }
+  async function createTrip(data) {
+    if (store.readOnly) { toast("You can view trips here but not start one."); return; }
+    const id = "t" + uid();
+    try {
+      if (store.mode === "cloud") await cloudWrite(() => cap.db.doc("trips/" + id).set(data));
+      store.snap = { ...store.snap, [id]: data };
+      if (store.mode !== "cloud") saveLocal();
+      openTrip(id, "orders");
+    } catch (e) { writeFailed(e); render(); }
+  }
+  async function deleteTrip(id) {
+    try {
+      if (store.mode === "cloud") await cloudWrite(() => cap.db.doc("trips/" + id).delete());
+      const next = { ...store.snap }; delete next[id]; store.snap = next;
+      if (store.mode !== "cloud") saveLocal();
+      if (ui.tripId === id) { ui.tripId = null; lsSet("tp.trip", null); }
+      toast("Trip deleted.");
+    } catch (e) { writeFailed(e); }
+    render();
+  }
+  function saveDeptMap(key, dept) {
+    const keys = Object.keys(deptMap);
+    const m = { ...(keys.length > 400 ? Object.fromEntries(keys.slice(-300).map((k) => [k, deptMap[k]])) : deptMap), [key]: dept };
+    deptMap = m;
+    if (store.mode === "cloud") cap.db.doc("prefs/deptmap").set({ m }).catch(() => {});
+    else lsSet("tp.deptmap", JSON.stringify(m));
+  }
+  const learnKey = (name) => TP.normName(name).replace(/[^a-z0-9]+/g, "_").slice(0, 80);
+
+  /* ---------- derived data ---------- */
+  const linesOf = (T) => Object.entries((T && T.lines) || {}).filter(([, l]) => l && !l.x && l.n).map(([id, l]) => ({ id, ...l })).sort((a, b) => (a.o || 0) - (b.o || 0));
+  const custOf = (T, cid) => (T.cust && T.cust[cid]) || { n: "", r: "jere", t: 0 };
+  const custName = (c) => c.n || "Unknown order";
+  const tagLetter = (c) => "ABCDEFGHJKLMNPQRSTUVWXYZ"[(c.t || 0) % 24];
+  const assignee = (T, l) => l.as || (T.owners && T.owners[l.d]) || "jere";
+  const resolved = (l) => l.st === "picked" || l.st === "oos" || l.st === "subbed";
+  const keyOf = (l) => TP.productKey(l.n, l.s);
+  function stats(T) {
+    const ls = linesOf(T);
+    const s = { lines: ls.length, units: 0, got: 0, products: new Set(), flagged: 0, orders: new Set(), started: false, by: { jere: { units: 0, got: 0 }, jesica: { units: 0, got: 0 } } };
+    for (const l of ls) {
+      const a = s.by[assignee(T, l)];
+      s.units += l.q; a.units += l.q;
+      const got = resolved(l) ? l.q : l.pk || 0;
+      s.got += got; a.got += got;
+      s.products.add(keyOf(l)); s.orders.add(l.c);
+      if (l.fl && l.fl.length) s.flagged++;
+      if (l.st && l.st !== "open") s.started = true;
+    }
+    return s;
+  }
+  function workload(T, onlyOpen) {
+    return TP.effort(linesOf(T).map((l) => ({ dept: l.d, key: keyOf(l), qty: l.q, open: !resolved(l) })), onlyOpen);
+  }
+  // Owners for the trip: full rebalance before anyone starts, afterwards only place departments that have no owner yet.
+  function ownersFor(T, mode) {
+    const eff = workload(T, mode === "remaining");
+    const userPins = Object.fromEntries(Object.entries(T.pins || {}).filter(([d, on]) => on && eff[d] && T.owners && T.owners[d]).map(([d]) => [d, T.owners[d]]));
+    if (mode === "fill") {
+      const fixed = Object.fromEntries(Object.keys(eff).filter((d) => T.owners && T.owners[d]).map((d) => [d, T.owners[d]]));
+      return TP.balance(eff, { pins: fixed }).owners;
+    }
+    return TP.balance(eff, { pins: userPins, current: T.owners || {}, stick: mode === "remaining" ? 30 : 0 }).owners;
+  }
+
+  /* ---------- adding items to a trip ---------- */
+  function importItems(tripId, runner, items, src) {
+    const T = tripView(tripId); if (!T) return 0;
+    const patch = { cust: {}, lines: {} };
+    const cust = { ...(T.cust || {}) };
+    let tagN = Object.keys(cust).length;
+    const cidFor = (name) => {
+      const hit = Object.entries(cust).find(([, c]) => c.r === runner && TP.custEq(c.n, name));
+      if (hit) return hit[0];
+      const cid = "c" + uid();
+      cust[cid] = patch.cust[cid] = { n: name, r: runner, t: tagN++ };
+      return cid;
+    };
+    const existing = linesOf(T);
+    let order = existing.reduce((m, l) => Math.max(m, l.o || 0), 0) + 1;
+    for (const it of items) {
+      const c = cidFor(it.customer || "");
+      const key = TP.productKey(it.name, it.size);
+      const fl = [...(it.flags || [])];
+      if (!it.customer && !fl.includes("cust")) fl.push("cust");
+      if (src !== "manual" && existing.some((l) => l.c === c && l.src !== src && keyOf(l) === key)) fl.push("dup");
+      const learned = deptMap[learnKey(it.name)];
+      const d = DEPT[learned] ? learned : it.dept;
+      if (DEPT[learned]) { const i = fl.indexOf("dept"); if (i >= 0) fl.splice(i, 1); }
+      patch.lines["l" + uid()] = { n: it.name, b: it.brand || "", s: it.size || "", q: it.qty, c, r: runner, d, a: it.aisle || "", note: it.note || "", sub: it.sub || "", cf: it.conf ?? 1, fl, src, st: "open", pk: 0, o: order++ };
+      if (it.price) patch.lines[Object.keys(patch.lines).pop()].p = it.price;
+    }
+    const next = TP.deepMerge(T, patch);
+    if (JSON.stringify(next).length > 230000) { toast("This trip is full. Start a new trip for more orders."); return 0; }
+    patch.owners = ownersFor(next, stats(T).started ? "fill" : "auto");
+    patchTrip(tripId, patch);
+    return items.length;
+  }
+
+  /* ---------- recordings -> frames ---------- */
+  const once = (target, ok, bad, ms) => new Promise((res, rej) => {
+    const done = (fn, v) => { clearTimeout(t); target.removeEventListener(ok, onOk); bad && target.removeEventListener(bad, onBad); fn(v); };
+    const onOk = () => done(res), onBad = () => done(rej, { code: "video_unreadable" });
+    const t = setTimeout(() => done(rej, { code: "video_unreadable" }), ms);
+    target.addEventListener(ok, onOk); bad && target.addEventListener(bad, onBad);
+  });
+  const readDataURL = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej({ code: "video_unreadable" }); r.readAsDataURL(file); });
+  async function openVideo(file) {
+    const v = document.createElement("video");
+    v.muted = true; v.playsInline = true; v.preload = "auto"; v.setAttribute("playsinline", ""); v.setAttribute("muted", "");
+    v.style.cssText = "position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none";
+    document.body.append(v);
+    const ways = [
+      async () => { const u = URL.createObjectURL(file); v.src = u; return () => URL.revokeObjectURL(u); },
+      async () => { v.removeAttribute("src"); v.srcObject = file; return () => { try { v.srcObject = null; } catch {} }; },
+      file.size < 45e6 && (async () => { try { v.srcObject = null; } catch {} v.src = await readDataURL(file); return () => v.removeAttribute("src"); }),
+    ].filter(Boolean);
+    for (const way of ways) {
+      let cleanup = null;
+      try {
+        cleanup = await way();
+        const ready = once(v, "loadeddata", "error", 9000);
+        v.load();
+        await ready;
+        // a muted play-then-pause wakes the decoder on iPhone; wait for it so it can't race the first seek
+        try { await Promise.race([v.play(), new Promise((r) => setTimeout(r, 1500))]); } catch {}
+        try { v.pause(); } catch {}
+        if (v.videoWidth) { const c = cleanup; return { v, cleanup: () => { c(); v.remove(); } }; }
+      } catch {}
+      if (cleanup) cleanup();
+    }
+    v.remove();
+    throw { code: "video_unreadable" };
+  }
+  // Resolve once the seek has landed AND the decoder has presented that frame (so the canvas doesn't read a stale one).
+  const seek = (v, t) => new Promise((res) => {
+    let over = false, seeked = false, framed = !v.requestVideoFrameCallback;
+    const fin = () => { if (!over) { over = true; clearTimeout(timer); res(); } };
+    const timer = setTimeout(fin, 4000);
+    if (Math.abs(v.currentTime - t) < 0.002) { setTimeout(fin, 40); return; }
+    if (!framed) v.requestVideoFrameCallback(() => { framed = true; if (seeked) fin(); });
+    v.addEventListener("seeked", () => { seeked = true; if (framed) fin(); else setTimeout(fin, 150); }, { once: true });
+    v.currentTime = t;
+  });
+  const toJpeg = (canvas) => new Promise((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej({ code: "video_unreadable" })), "image/jpeg", 0.85));
+  /* Pass 1 watches the recording at low resolution and notes the moments where the list has moved
+     about 40% of a screen (or the screen changed). Pass 2 exports just those moments. */
+  async function framesFromVideo(file, onProg, signal) {
+    const { v, cleanup } = await openVideo(file);
+    try {
+      const dur = v.duration;
+      if (!Number.isFinite(dur) || dur <= 0) throw { code: "video_unreadable" };
+      const vw = v.videoWidth, vh = v.videoHeight;
+      const aw = 72, ah = Math.max(48, Math.min(220, Math.round((72 * vh) / vw)));
+      const ac = el("canvas", { width: aw, height: ah }), actx = ac.getContext("2d", { willReadFrequently: true });
+      const step = dur > 120 ? 0.6 : dur > 45 ? 0.45 : 0.33;
+      let times = [], kept = null, lastSig = null, lastT = 0;
+      await seek(v, Math.min(0.4, dur / 2)); // warm-up so the first real seek lands on a decoded frame
+      for (let t = 0.05; t < dur; t += step) {
+        if (signal.aborted) throw { code: "cancelled" };
+        await seek(v, Math.min(t, Math.max(0, dur - 0.05)));
+        actx.drawImage(v, 0, 0, aw, ah);
+        const sig = TP.rowSig(actx.getImageData(0, 0, aw, ah).data, aw, ah);
+        const m = kept ? TP.motion(kept, sig, ah) : { kind: "change" };
+        if (m.kind === "change" || (m.kind === "scroll" && m.frac >= 0.4)) { times.push(t); kept = sig; }
+        lastSig = sig; lastT = t;
+        onProg((t / dur) * 0.7);
+      }
+      if (kept && lastSig && lastT !== times[times.length - 1] && TP.motion(kept, lastSig, ah).kind !== "still") times.push(lastT);
+      let thinned = false;
+      if (times.length > MAX_FRAMES) { thinned = true; times = Array.from({ length: MAX_FRAMES }, (_, i) => times[Math.round((i * (times.length - 1)) / (MAX_FRAMES - 1))]); }
+      const scale = Math.min(1, 1568 / Math.max(vw, vh));
+      const oc = el("canvas", { width: Math.round(vw * scale), height: Math.round(vh * scale) }), octx = oc.getContext("2d");
+      const frames = [];
+      for (let i = 0; i < times.length; i++) {
+        if (signal.aborted) throw { code: "cancelled" };
+        await seek(v, Math.min(times[i], Math.max(0, dur - 0.05)));
+        octx.drawImage(v, 0, 0, oc.width, oc.height);
+        frames.push({ blob: await toJpeg(oc), t: times[i] });
+        onProg(0.7 + (0.3 * (i + 1)) / times.length);
+      }
+      return { frames, thinned };
+    } finally { cleanup(); }
+  }
+
+  /* ---------- frames -> items (Claude reads the stills) ---------- */
+  function promptFor(rec, n) {
+    return [
+      `These ${n} image${n === 1 ? " is a still" : "s are consecutive stills"} from a phone screen recording of a grocery shopping list in the Favor runner app, for orders shopped at H-E-B. ${n > 1 ? `They are in order, numbered 1 to ${n}, and neighbouring stills overlap, so one list row can appear in more than one image.` : ""}`,
+      "List every product row you can read. Report each distinct row once even if it shows in several stills. If the same product is listed under two different customers or orders, report it once for each.",
+      "For each row give these fields:",
+      '- "name": the product name exactly as shown',
+      '- "brand": the brand if shown, else null',
+      '- "qty": the number of units requested, as shown. If no quantity is visible use 1 and set "qtyShown" to false',
+      '- "qtyShown": true or false',
+      '- "size": package size or weight as shown, such as "1 gal" or "16 oz", else null',
+      '- "customer": the customer name or order label this row belongs to, exactly as shown (a header, tab or label), or null if these stills do not show it',
+      `- "dept": one of ${DEPTS.map((d) => d.id).join(", ")} (hb is health and beauty; prepared is refrigerated ready-to-eat food)`,
+      '- "aisle": aisle or shelf location text if shown, else null',
+      '- "note": the customer\'s instructions for this item if shown, else null',
+      '- "sub": the substitution preference if shown, else null',
+      '- "price": a number if shown, else null',
+      '- "conf": 0 to 1, how sure you are that name, quantity and size are right',
+      '- "cut": true if the row is cut off at the edge and never fully visible in these stills, else false',
+      '- "frame": the number of the first image where the row appears',
+      "Rules: report only what is visible. Never guess a size, brand, quantity or customer. Leave out addresses, phone numbers, payment details, totals and anything that is not a product row.",
+      rec.label ? `The runner says this recording is the order for "${rec.label.replace(/["\\]/g, "")}". Use that as the customer unless a row clearly shows a different one.` : "",
+      'Reply with only JSON in this shape: {"items":[{"name":"H-E-B Whole Milk","brand":"H-E-B","qty":2,"qtyShown":true,"size":"1 gal","customer":"Sydney","dept":"dairy","aisle":null,"note":null,"sub":null,"price":null,"conf":0.95,"cut":false,"frame":1}]}. If there are no product rows reply {"items":[]}.',
+    ].filter(Boolean).join("\n");
+  }
+  const HALT = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed", "images_unavailable", "rate_limited", "session_expired", "cancelled"];
+  const ERR_TEXT = {
+    not_granted: "Claude isn’t allowed to read images for this page in this view.", sampling_disabled: "Claude isn’t available for this account.", images_unavailable: "This view can’t send images to Claude.",
+    rate_limited: "Claude’s usage limit was reached. Wait a little, then read the remaining parts.", session_expired: "Sign in to Claude again, then read the remaining parts.", cancelled: "Stopped.",
+    refused: "Claude declined to read part of this recording.", invalid_json: "Part of the answer couldn’t be used.", image_rejected: "One of the images couldn’t be used. Try a different file.",
+    video_unreadable: "This browser couldn’t open the video. Screenshots of the list work too.", no_frames: "No list screens were found in this recording.",
+  };
+  const errText = (code) => ERR_TEXT[code] || "Something interrupted the reading.";
+  async function readRec(rec, signal) {
+    const K = Math.max(1, Math.min(cap.maxImages || 1, 4));
+    if (!rec.batches) { rec.batches = []; for (let i = 0; i < rec.frames.length; i += K) rec.batches.push({ start: i, n: Math.min(K, rec.frames.length - i), state: "todo" }); }
+    const todo = rec.batches.filter((b) => b.state !== "ok");
+    let next = 0, halt = null;
+    const worker = async () => {
+      while (next < todo.length && !halt && !signal.aborted) {
+        const b = todo[next++];
+        b.state = "run"; paintRec(rec);
+        try {
+          const out = await cap.sample.json(promptFor(rec, b.n), { images: rec.frames.slice(b.start, b.start + b.n).map((f) => f.blob), signal, modelTier: ui.tier });
+          const rows = out && Array.isArray(out.items) ? out.items : Array.isArray(out) ? out : [];
+          b.items = rows.map((r) => TP.cleanItem(r, b.start)).filter(Boolean);
+          b.state = "ok";
+        } catch (e) {
+          b.state = "err"; b.code = (e && e.code) || "upstream_error";
+          if (HALT.includes(b.code)) halt = b.code;
+        }
+        paintRec(rec);
+      }
+    };
+    await Promise.all([worker(), worker()]);
+    return halt || (signal.aborted ? "cancelled" : null);
+  }
+  function finalize(rec) {
+    const raw = rec.batches.filter((b) => b.state === "ok").flatMap((b) => b.items || []);
+    const items = TP.fillCustomers(TP.dedupe(raw), rec.label.trim());
+    rec.added = importItems(rec.tripId, rec.runner, items, rec.id);
+    rec.flagged = items.filter((i) => i.flags.length).length;
+    rec.state = "done"; rec.frames = null;
+  }
+  async function processRec(rec, signal) {
+    try {
+      if (!rec.frames) {
+        rec.state = "frames"; rec.prog = 0; render();
+        if (rec.files) rec.frames = rec.files.map((f) => ({ blob: f, t: 0 }));
+        else { const r = await framesFromVideo(rec.file, (p) => { rec.prog = p; paintRec(rec); }, signal); rec.frames = r.frames; rec.thinned = r.thinned; }
+        if (!rec.frames.length) throw { code: "no_frames" };
+      }
+      rec.state = "reading"; render();
+      const halt = await readRec(rec, signal);
+      if (rec.batches.every((b) => b.state === "ok")) finalize(rec);
+      else { rec.state = "partial"; rec.err = halt || (rec.batches.find((b) => b.state === "err") || {}).code || "upstream_error"; if (halt) job.halt = true; }
+    } catch (e) { rec.state = "failed"; rec.err = (e && e.code) || "video_unreadable"; if (rec.err === "cancelled") { rec.state = "queued"; rec.frames = null; } }
+    render();
+  }
+  async function runJob() {
+    if (job || !cap.sample) return;
+    job = { ctl: new AbortController(), halt: false };
+    render();
+    for (const rec of recs.filter((r) => ["queued", "partial", "failed"].includes(r.state))) {
+      if (job.ctl.signal.aborted || job.halt) break;
+      await processRec(rec, job.ctl.signal);
+    }
+    job = null;
+    const done = recs.filter((r) => r.state === "done" && !r.told);
+    if (done.length) { done.forEach((r) => (r.told = true)); toast(`Added ${plural(done.reduce((s, r) => s + (r.added || 0), 0), "item")}. Check them on the Review screen.`); }
+    render();
+  }
+  function recStatus(rec) {
+    if (rec.state === "queued") return "Waiting to be read";
+    if (rec.state === "frames") return `Finding the list screens, ${Math.round((rec.prog || 0) * 100)}%`;
+    if (rec.state === "reading") { const ok = rec.batches ? rec.batches.filter((b) => b.state === "ok").length : 0; return `Claude is reading ${plural(rec.frames.length, "screen")}: part ${Math.min(ok + 1, rec.batches ? rec.batches.length : 1)} of ${rec.batches ? rec.batches.length : 1}. This can take a minute or two.`; }
+    if (rec.state === "done") return `Added ${plural(rec.added || 0, "item")}${rec.flagged ? `, ${rec.flagged} to check` : ""}${rec.thinned ? ". Long recording, so some screens were skipped; check for missing items." : ""}`;
+    if (rec.state === "partial") { const bad = rec.batches.filter((b) => b.state !== "ok").length; return `${errText(rec.err)} ${bad} of ${rec.batches.length} parts not read yet.`; }
+    return errText(rec.err);
+  }
+  function paintRec(rec) { if (rec.statusEl && rec.statusEl.isConnected) rec.statusEl.textContent = recStatus(rec); }
+
+  /* ---------- actions on lines ---------- */
+  function setLines(T, ls, fields) {
+    const patch = { lines: {} };
+    const stamp = { by: ui.me || "", at: Date.now() };
+    for (const l of ls) {
+      patch.lines[l.id] = { ...fields, ...stamp };
+      if (T.ver && T.ver[l.c] && T.ver[l.c].ok) (patch.ver ||= {})[l.c] = { ok: false };
+    }
+    if (!T.t0 && fields.st && fields.st !== "open") patch.t0 = Date.now();
+    patchTrip(ui.tripId, patch);
+  }
+  const pick = (T, ls) => setLines(T, ls, { st: "picked", pk: 0 });
+  const unpick = (T, ls) => setLines(T, ls, { st: "open", pk: 0 });
+  function setPicked(T, l, n) {
+    if (n <= 0) setLines(T, [l], { st: "open", pk: 0 });
+    else if (n >= l.q) setLines(T, [l], { st: "picked", pk: 0 });
+    else setLines(T, [l], { st: "partial", pk: n });
+  }
+
+  /* ---------- sheet ---------- */
+  const sheetRoot = document.getElementById("sheet");
+  function closeSheet() { sheetRoot.replaceChildren(); }
+  function openSheet(title, body) {
+    const sheet = el("div", { class: "sheet", role: "dialog", "aria-modal": "true", "aria-label": title }, el("h2", {}, title), body);
+    const scrim = el("div", { class: "scrim", onclick: (e) => { if (e.target === scrim) closeSheet(); } }, sheet);
+    sheetRoot.replaceChildren(scrim);
+    const first = sheet.querySelector("input, select, textarea, button");
+    if (first) first.focus();
+  }
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+  const field = (label, input) => el("label", { class: "field" }, el("span", {}, label), input);
+  function runnerSeg(value, onPick) {
+    const seg = el("div", { class: "seg", role: "group" });
+    for (const r of ["jere", "jesica"]) seg.append(el("button", { type: "button", class: r, "aria-pressed": String(value === r), onclick: () => { [...seg.children].forEach((b) => b.setAttribute("aria-pressed", "false")); seg.children[r === "jere" ? 0 : 1].setAttribute("aria-pressed", "true"); onPick(r); } }, RUNNERS[r]));
+    return seg;
+  }
+
+  function editLine(T, l) {
+    const isNew = !l;
+    const d = l ? { ...l } : { n: "", s: "", q: 1, d: "pantry", r: ui.me || "jere", c: "", note: "" };
+    const name = el("input", { class: "in", value: d.n, autocomplete: "off" });
+    const size = el("input", { class: "in", value: d.s, placeholder: "16 oz, 1 gal…", autocomplete: "off" });
+    const qty = el("input", { class: "in", type: "number", inputmode: "decimal", min: "0.01", step: "any", value: String(d.q) });
+    const dept = el("select", { class: "in" }, DEPTS.map((x) => el("option", { value: x.id, selected: x.id === d.d }, x.name)));
+    const note = el("input", { class: "in", value: d.note || "", autocomplete: "off" });
+    const custSel = el("select", { class: "in" });
+    const custNew = el("input", { class: "in", placeholder: "Customer name", autocomplete: "off" });
+    const custNewWrap = field("New customer", custNew);
+    const fillCust = () => {
+      custSel.replaceChildren(...Object.entries(T.cust || {}).filter(([, c]) => c.r === d.r).map(([cid, c]) => el("option", { value: cid, selected: cid === d.c }, `${tagLetter(c)}  ${custName(c)}`)), el("option", { value: "+" }, "New customer…"));
+      custNewWrap.hidden = custSel.value !== "+";
+    };
+    custSel.addEventListener("change", () => { custNewWrap.hidden = custSel.value !== "+"; });
+    fillCust();
+    const save = () => {
+      const n = name.value.trim(); const q = Number(qty.value);
+      if (!n) { name.focus(); return; }
+      if (!Number.isFinite(q) || q <= 0) { qty.focus(); return; }
+      const customer = custSel.value === "+" ? custNew.value.trim() : custOf(T, custSel.value).n;
+      if (custSel.value === "+" && !customer) { custNew.focus(); return; }
+      if (isNew) {
+        importItems(ui.tripId, d.r, [{ name: n, size: size.value.trim(), qty: q, dept: dept.value, customer, note: note.value.trim(), flags: [] }], "manual");
+      } else {
+        const patch = { lines: { [l.id]: { n, s: size.value.trim(), q, d: dept.value, note: note.value.trim(), fl: [], r: d.r } }, cust: {} };
+        if (custSel.value === "+") { const cid = "c" + uid(); patch.cust[cid] = { n: customer, r: d.r, t: Object.keys(T.cust || {}).length }; patch.lines[l.id].c = cid; }
+        else patch.lines[l.id].c = custSel.value;
+        if (dept.value !== l.d) { saveDeptMap(learnKey(n), dept.value); const next = TP.deepMerge(T, patch); if (!(T.owners || {})[dept.value]) patch.owners = ownersFor(next, "fill"); }
+        if (l.q !== q && l.st === "picked") patch.lines[l.id].st = "open";
+        patchTrip(ui.tripId, patch);
+      }
+      closeSheet();
+    };
+    let armed = false;
+    const del = !isNew && el("button", { type: "button", class: "btn danger", onclick: (e) => { if (!armed) { armed = true; e.currentTarget.textContent = "Tap again to delete"; return; } patchTrip(ui.tripId, { lines: { [l.id]: { x: 1 } } }); closeSheet(); } }, "Delete item");
+    openSheet(isNew ? "Add an item" : "Check this item", el("div", { class: "stack" },
+      !isNew && l.fl && l.fl.length ? el("div", { class: "banner" }, l.fl.map((f) => FLAG_TEXT[f] || f).join(". ") + ". Saving marks it as checked.") : null,
+      field("Product", name),
+      el("div", { class: "row" }, el("div", { style: "width:110px" }, field("Quantity", qty)), el("div", { class: "grow" }, field("Size", size))),
+      field("Department", dept),
+      el("div", { class: "field" }, el("span", {}, "Whose Favor order"), runnerSeg(d.r, (r) => { d.r = r; d.c = ""; fillCust(); })),
+      field("Customer", custSel), custNewWrap,
+      field("Customer’s note", note),
+      el("div", { class: "row" }, el("button", { type: "button", class: "btn primary grow", onclick: save }, isNew ? "Add item" : "Save"), del, el("button", { type: "button", class: "btn", onclick: closeSheet }, "Cancel"))));
+  }
+  function renameCustomer(T, cid) {
+    const c = custOf(T, cid);
+    const name = el("input", { class: "in", value: c.n, autocomplete: "off" });
+    openSheet("Customer name", el("div", { class: "stack" }, field(`Bag ${tagLetter(c)}, from ${RUNNERS[c.r]}’s Favor`, name),
+      el("div", { class: "row" }, el("button", { type: "button", class: "btn primary grow", onclick: () => {
+        const n = name.value.trim(); if (!n) { name.focus(); return; }
+        const patch = { cust: { [cid]: { n } }, lines: {} };
+        for (const l of linesOf(T)) if (l.c === cid && l.fl && l.fl.includes("cust")) patch.lines[l.id] = { fl: l.fl.filter((f) => f !== "cust") };
+        patchTrip(ui.tripId, patch); closeSheet();
+      } }, "Save"), el("button", { type: "button", class: "btn", onclick: closeSheet }, "Cancel"))));
+  }
+  function subSheet(T, l) {
+    const what = el("input", { class: "in", value: l.sn || "", placeholder: "What you grabbed instead", autocomplete: "off" });
+    const done = (st) => { setLines(T, [l], { st, pk: 0, sn: what.value.trim() }); closeSheet(); };
+    openSheet("Substitution", el("div", { class: "stack" },
+      el("p", {}, `${TP.fmtQty(l.q)} × ${l.n}${l.s ? ", " + l.s : ""} for ${custName(custOf(T, l.c))}`),
+      l.sub ? el("div", { class: "banner plain" }, "Customer’s preference: " + l.sub) : null,
+      field("Replacement", what),
+      el("button", { type: "button", class: "btn primary wide", onclick: () => { if (!what.value.trim()) { what.focus(); return; } done("subbed"); } }, "Substituted, it’s in the cart"),
+      el("button", { type: "button", class: "btn wide", onclick: () => done("needsub") }, "Still needs a substitute"),
+      el("button", { type: "button", class: "btn quiet", onclick: closeSheet }, "Cancel")));
+  }
+
+  /* ---------- views ---------- */
+  const tag = (T, cid, extra) => { const c = custOf(T, cid); return el("span", { class: `tag t${(c.t || 0) % 8}` }, el("b", {}, tagLetter(c)), el("span", {}, extra ? `${extra} ${custName(c)}` : custName(c))); };
+  const bar = (frac, cls) => el("div", { class: "bar " + (cls || "") }, el("i", { style: `width:${Math.round(Math.max(0, Math.min(1, frac)) * 100)}%` }));
+  const sampleNote = (T) => (T.sample ? el("div", { class: "banner plain" }, "Sample orders, made up for trying the app. Nothing here came from a recording.") : null);
+
+  function vHome() {
+    const box = el("div", { class: "stack" });
+    if (!ui.me) box.append(el("div", { class: "card stack" }, el("h2", {}, "Who’s holding this phone?"), el("div", { class: "row" },
+      ...["jere", "jesica"].map((r) => el("button", { class: "btn grow who-" + r, onclick: () => setMe(r) }, RUNNERS[r])))));
+    box.append(el("h1", {}, "Shopping trips"));
+    const ids = Object.keys(store.snap).sort((a, b) => (store.snap[b].createdAt || 0) - (store.snap[a].createdAt || 0));
+    if (store.mode === "loading") box.append(el("p", { class: "muted" }, store.stale ? "Saved trips can’t be reached yet. Still trying." : "Loading trips…"));
+    else if (!ids.length) box.append(el("p", { class: "muted" }, "No trips yet. Start one when you both have your orders."));
+    for (const id of ids) {
+      const T = tripView(id), s = stats(T);
+      box.append(el("div", { class: "card stack" },
+        el("div", { class: "row" }, el("h3", { class: "grow" }, T.name || "Trip"), T.sample ? el("span", { class: "pill" }, "Sample") : null, T.done ? el("span", { class: "pill ok" }, "Finished") : null),
+        el("p", { class: "muted small" }, [T.store, s.lines ? `${TP.fmtQty(s.got)} of ${TP.fmtQty(s.units)} units done` : "No items yet"].filter(Boolean).join(", ")),
+        s.lines ? bar(s.units ? s.got / s.units : 0) : null,
+        el("div", { class: "row" }, el("button", { class: "btn grow", onclick: () => openTrip(id) }, "Open trip"), el("button", { class: "btn quiet sm", onclick: () => confirmDelete(id, T) }, "Delete"))));
+    }
+    if (store.mode !== "loading") {
+      const storeIn = el("input", { class: "in", placeholder: "Which H-E-B? (optional)", autocomplete: "off", "data-fk": "store" });
+      box.append(el("div", { class: "card stack" }, el("h2", {}, "Start a trip"), field("Store", storeIn),
+        el("button", { class: "btn primary wide", disabled: store.readOnly, onclick: () => createTrip({ name: new Date().toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }), store: storeIn.value.trim().slice(0, 80), createdAt: Date.now(), by: ui.me || "", owners: {}, pins: {}, cust: {}, lines: {}, ver: {} }) }, "Start a trip"),
+        el("button", { class: "btn wide", disabled: store.readOnly, onclick: () => createTrip(sampleTrip()) }, "Try it with sample orders")));
+      box.append(el("p", { class: "muted small" }, store.mode === "cloud" ? (window.TP_STANDALONE ? "Trips are shared live with everyone who has the team passcode." : "Trips are shared live with everyone you’ve given edit access to this page.") : "Trips are saved on this phone only, because shared storage isn’t available in this view."));
+    }
+    box.append(el("p", { class: "muted small" }, "TeamPick works only from what you upload or type. It never touches Favor or its checkout. Each runner stays responsible for Favor’s policies and for customers’ privacy."));
+    return box;
+  }
+  function confirmDelete(id, T) {
+    openSheet("Delete this trip?", el("div", { class: "stack" }, el("p", {}, `${T.name || "Trip"} and its ${plural(stats(T).lines, "item")} will be removed for both of you. This can’t be undone.`),
+      el("div", { class: "row" }, el("button", { class: "btn danger grow", onclick: () => { closeSheet(); deleteTrip(id); } }, "Delete trip"), el("button", { class: "btn", onclick: closeSheet }, "Keep it"))));
+  }
+
+  function vOrders(T) {
+    const box = el("div", { class: "stack" }, el("h1", {}, "Add orders"), sampleNote(T));
+    box.append(el("p", { class: "muted" }, "Record your screen while you scroll each Favor shopping list slowly from top to bottom, then add the recording here. Screenshots work too."));
+    if (cap.sampleReady && !cap.sample) box.append(el("div", { class: "banner" }, window.TP_STANDALONE ? "Reading recordings isn’t switched on for this site yet. It needs an Anthropic API key on the server. You can add items by hand below." : "Reading recordings needs Claude, which isn’t available in this view. Open the page inside Claude, or add items by hand below."));
+    else if (cap.sampleReady && !cap.maxImages) box.append(el("div", { class: "banner" }, "This view can’t send images to Claude, so recordings can’t be read here. You can add items by hand below."));
+    for (const r of ["jere", "jesica"]) {
+      const mine = recs.filter((x) => x.runner === r && x.tripId === ui.tripId);
+      const input = el("input", { type: "file", accept: "video/*,image/*", multiple: true, "aria-label": `Add ${RUNNERS[r]}’s recordings or screenshots`, onchange: (e) => { addFiles(r, [...e.target.files]); e.target.value = ""; } });
+      box.append(el("div", { class: "card " + r },
+        el("h2", { class: "who-" + r }, `${RUNNERS[r]}’s Favor orders`),
+        el("label", { class: "drop", style: "margin-top:10px" }, input, "Add recordings or screenshots"),
+        mine.map((rec) => {
+          rec.statusEl = el("p", { class: "small " + (rec.state === "failed" || rec.state === "partial" ? "flagtxt" : "muted"), "aria-live": "polite" }, recStatus(rec));
+          const busy = job && (rec.state === "frames" || rec.state === "reading");
+          return el("div", { class: "rec stack" },
+            el("div", { class: "row" }, el("div", { class: "fn grow" }, rec.title), !busy && rec.state !== "done" ? el("button", { class: "btn quiet sm", onclick: () => { recs.splice(recs.indexOf(rec), 1); render(); } }, "Remove") : null),
+            rec.state === "queued" ? field("Customer, if this is one order (optional)", el("input", { class: "in", value: rec.label, autocomplete: "off", "data-fk": "lab" + rec.id, oninput: (e) => (rec.label = e.target.value.slice(0, 60)) })) : null,
+            rec.statusEl,
+            rec.state === "partial" && !job ? el("div", { class: "row" }, el("button", { class: "btn sm", onclick: runJob }, "Read the remaining parts"), rec.batches.some((b) => b.state === "ok") ? el("button", { class: "btn sm", onclick: () => { finalize(rec); toast("Added what was read. Check for missing items."); render(); } }, "Add what was read") : null) : null);
+        })));
+    }
+    const waiting = recs.filter((r) => r.tripId === ui.tripId && ["queued", "failed"].includes(r.state)).length;
+    box.append(el("div", { class: "stack" },
+      el("div", { class: "row" }, el("span", { class: "small muted grow" }, "Reading"), (() => { const seg = el("div", { class: "seg", role: "group", "aria-label": "Reading speed" }); for (const [v, t] of [["default", "Careful"], ["quick", "Faster"]]) seg.append(el("button", { type: "button", "aria-pressed": String(ui.tier === v), onclick: () => { ui.tier = v; lsSet("tp.tier", v); render(); } }, t)); return seg; })()),
+      job ? el("button", { class: "btn wide", onclick: () => job.ctl.abort() }, "Stop reading")
+        : el("button", { class: "btn primary wide", disabled: !waiting || !cap.sample || !cap.maxImages || store.readOnly, onclick: runJob }, !cap.sampleReady ? "Getting ready…" : waiting ? `Read ${plural(waiting, "upload")}` : "Add a recording to read"),
+      el("button", { class: "btn wide", disabled: store.readOnly, onclick: () => editLine(T, null) }, "Add an item by hand"),
+      linesOf(T).length ? el("button", { class: "btn wide", onclick: () => go("review") }, `Review ${plural(linesOf(T).length, "item")}`) : null,
+      el("p", { class: "muted small" }, "Videos stay on this phone. Only still frames go to Claude to be read, with instructions to ignore addresses, phone numbers and payment details. The trip saves product rows and customer names, nothing else.")));
+    return box;
+  }
+  function addFiles(runner, files) {
+    const vids = files.filter((f) => f.type.startsWith("video/") || /\.(mp4|mov|webm|m4v)$/i.test(f.name));
+    const imgs = files.filter((f) => f.type.startsWith("image/")).sort((a, b) => a.lastModified - b.lastModified || a.name.localeCompare(b.name));
+    for (const f of vids) recs.push({ id: "r" + uid(), tripId: ui.tripId, runner, file: f, title: `${f.name} (${(f.size / 1e6).toFixed(1)} MB)`, label: "", state: "queued" });
+    for (let i = 0; i < imgs.length; i += 24) { const g = imgs.slice(i, i + 24); recs.push({ id: "r" + uid(), tripId: ui.tripId, runner, files: g, title: g.length === 1 ? g[0].name : `${g.length} screenshots`, label: "", state: "queued" }); }
+    if (!vids.length && !imgs.length && files.length) toast("That file type isn’t supported. Use a video or a screenshot.");
+    render();
+  }
+
+  function vReview(T) {
+    const ls = linesOf(T), flagged = ls.filter((l) => l.fl && l.fl.length);
+    const box = el("div", { class: "stack" }, el("h1", {}, "Review items"), sampleNote(T));
+    if (!ls.length) { box.append(el("p", { class: "muted" }, "Nothing to review yet."), el("button", { class: "btn primary wide", onclick: () => go("orders") }, "Add orders")); return box; }
+    box.append(el("p", { class: "muted" }, flagged.length ? `${plural(flagged.length, "item")} of ${ls.length} need a look. Tap one to fix or confirm it.` : `All ${ls.length} items look complete. Tap any item to change it.`));
+    if (flagged.length) { const seg = el("div", { class: "seg", role: "group", "aria-label": "Which items to show" }); for (const [v, t] of [[false, `All ${ls.length}`], [true, `To check ${flagged.length}`]]) seg.append(el("button", { type: "button", "aria-pressed": String(ui.onlyFlags === v), onclick: () => { ui.onlyFlags = v; render(); } }, t)); box.append(seg); }
+    const show = ui.onlyFlags && flagged.length ? flagged : ls;
+    for (const r of ["jere", "jesica"]) {
+      const cids = Object.keys(T.cust || {}).filter((cid) => T.cust[cid].r === r && show.some((l) => l.c === cid));
+      if (!cids.length) continue;
+      const sec = el("div", { class: "card " + r }, el("h2", { class: "who-" + r }, `From ${RUNNERS[r]}’s Favor`));
+      for (const cid of cids) {
+        const mine = show.filter((l) => l.c === cid);
+        sec.append(el("div", { class: "row", style: "margin-top:14px" }, el("div", { class: "grow" }, tag(T, cid)), el("span", { class: "muted small" }, plural(mine.length, "item")), el("button", { class: "btn quiet sm", onclick: () => renameCustomer(T, cid) }, "Rename")));
+        for (const l of mine) sec.append(el("button", { class: "rv" + (l.fl && l.fl.length ? " flagged" : ""), onclick: () => editLine(T, l) },
+          el("span", { class: "q num" }, TP.fmtQty(l.q)),
+          el("span", {}, el("span", { class: "nm" }, l.n), el("br"), el("span", { class: "muted small" }, [l.s, (DEPT[l.d] || DEPT.other).name].filter(Boolean).join(", ")), l.fl && l.fl.length ? el("span", { class: "flagtxt" }, el("br"), l.fl.map((f) => FLAG_TEXT[f] || f).join(". ")) : null),
+          el("span", { class: "muted small" }, "Edit")));
+      }
+      box.append(sec);
+    }
+    box.append(el("button", { class: "btn wide", disabled: store.readOnly, onclick: () => editLine(T, null) }, "Add an item by hand"), el("button", { class: "btn primary wide", onclick: () => go("split") }, "Split the work"));
+    return box;
+  }
+
+  function vSplit(T) {
+    const s = stats(T), box = el("div", { class: "stack" }, el("h1", {}, "Split the work"), sampleNote(T));
+    if (!s.lines) { box.append(el("p", { class: "muted" }, "Add orders first, then the departments get divided here."), el("button", { class: "btn primary wide", onclick: () => go("orders") }, "Add orders")); return box; }
+    const eff = workload(T, false), effOpen = workload(T, true);
+    const owners = T.owners || {};
+    const ids = Object.keys(eff).sort((a, b) => (DEPT[a] || DEPT.other).order - (DEPT[b] || DEPT.other).order);
+    const tot = { jere: 0, jesica: 0 }, left = { jere: 0, jesica: 0 }, nd = { jere: 0, jesica: 0 };
+    for (const d of ids) { const o = owners[d] || "jere"; tot[o] += eff[d].secs; left[o] += effOpen[d] ? effOpen[d].secs : 0; nd[o]++; }
+    const reasons = TP.explain(ids, Object.fromEntries(ids.map((d) => [d, owners[d] || "jere"])), T.pins || {});
+    const handed = linesOf(T).filter((l) => l.as).length;
+    const maxT = Math.max(tot.jere, tot.jesica, 1);
+    box.append(el("div", { class: "card" }, el("div", { class: "facts" },
+      ...[[s.orders.size, "customer orders"], [s.products.size, "different products"], [TP.fmtQty(s.units), "units in all"], [TP.fmtQty(s.got), "units done"], [TP.fmtQty(s.units - s.got), "units left"], [s.flagged, "items to check"]].map(([n, t]) => el("div", {}, el("b", { class: "num" }, n), el("span", {}, t)))),
+      T.t0 ? el("p", { class: "muted small", style: "margin-top:10px" }, `First item picked ${Math.max(0, Math.round((Date.now() - T.t0) / 60000))} min ago (measured).`) : null));
+    box.append(el("div", { class: "vs" }, ...["jere", "jesica"].map((r) => el("div", { class: "card " + r },
+      el("h3", { class: "who-" + r }, RUNNERS[r]), el("div", { class: "big num" }, `${TP.mins(tot[r])} min`),
+      el("p", { class: "muted small" }, `${plural(nd[r], "department")}, ${plural(s.by[r].units, "unit")}`), el("div", { style: "margin-top:8px" }, bar(tot[r] / maxT, r)),
+      s.started ? el("p", { class: "muted small", style: "margin-top:6px" }, `About ${TP.mins(left[r])} min left`) : null))));
+    box.append(el("p", { class: "muted small" }, "Minutes are rough estimates from item counts and typical counter waits, not measurements, and they don’t know this store’s layout."));
+    const list = el("div", { class: "card" });
+    for (const d of ids) {
+      const def = DEPT[d] || DEPT.other, o = owners[d] || "jere";
+      list.append(el("div", { class: "drow" },
+        el("div", {}, el("div", { class: "dn" }, `${def.icon} ${def.name}`), el("div", { class: "muted small" }, `${plural(eff[d].products, "product")}, ${plural(eff[d].units, "unit")}, about ${TP.mins(eff[d].secs)} min`), el("div", { class: "muted small" }, reasons[d])),
+        runnerSeg(o, (r) => { if (r !== o) patchTrip(ui.tripId, { owners: { [d]: r }, pins: { [d]: true } }); })));
+    }
+    box.append(list);
+    if (handed) box.append(el("p", { class: "muted small" }, `${plural(handed, "item")} handed over one by one stay with whoever has them.`));
+    box.append(el("button", { class: "btn wide", disabled: store.readOnly, onclick: () => { patchTrip(ui.tripId, { owners: ownersFor(T, s.started ? "remaining" : "auto") }); toast(s.started ? "Rebalanced the work that’s left." : "Balanced. Departments you set stayed put."); } }, s.started ? "Rebalance what’s left" : "Balance automatically"),
+      Object.values(T.pins || {}).some(Boolean) ? el("button", { class: "btn quiet", onclick: () => { const pins = Object.fromEntries(Object.keys(T.pins).map((d) => [d, false])); patchTrip(ui.tripId, { pins, owners: ownersFor({ ...T, pins: {} }, s.started ? "remaining" : "auto") }); } }, "Forget my choices and balance again") : null,
+      el("button", { class: "btn primary wide", onclick: () => go(ui.me || "jere") }, "Start picking"));
+    return box;
+  }
+
+  function vList(T, runner) {
+    const all = linesOf(T).filter((l) => assignee(T, l) === runner);
+    const s = stats(T).by[runner];
+    const box = el("div", { class: "stack" },
+      el("div", { class: "row" }, el("h1", { class: "grow who-" + runner }, `${RUNNERS[runner]}’s list`), el("button", { class: "btn quiet sm", onclick: () => go(other(runner)) }, `See ${RUNNERS[other(runner)]}’s`)), sampleNote(T));
+    if (!all.length) { box.append(el("p", { class: "muted" }, linesOf(T).length ? `Nothing is assigned to ${RUNNERS[runner]} right now.` : "No items yet. Add orders to build the lists."), el("button", { class: "btn primary wide", onclick: () => go(linesOf(T).length ? "split" : "orders") }, linesOf(T).length ? "Split the work" : "Add orders")); return box; }
+    box.append(el("div", {}, el("div", { class: "row", style: "margin-bottom:6px" }, el("span", { class: "grow", style: "font-weight:600" }, `${TP.fmtQty(s.got)} of ${TP.fmtQty(s.units)} units`), el("span", { class: "muted num" }, `${s.units ? Math.round((s.got / s.units) * 100) : 0}%`)), bar(s.units ? s.got / s.units : 0, runner)));
+    if (ui.me && ui.me !== runner) box.append(el("div", { class: "banner plain" }, `You’re looking at ${RUNNERS[runner]}’s list. Anything you mark here counts for both of you.`));
+    box.append(el("input", { class: "in", type: "search", placeholder: "Find an item or customer", value: ui.q, "aria-label": "Find an item or customer", "data-fk": "q", oninput: (e) => { ui.q = e.target.value; render(); } }));
+    const q = TP.normName(ui.q);
+    const shown = q ? all.filter((l) => TP.normName(`${l.n} ${l.b} ${custName(custOf(T, l.c))}`).includes(q)) : all;
+    if (!shown.length) box.append(el("p", { class: "muted" }, "No items match that search."));
+    const depts = [...new Set(shown.map((l) => l.d))].sort((a, b) => (DEPT[a] || DEPT.other).order - (DEPT[b] || DEPT.other).order);
+    for (const d of depts) {
+      const def = DEPT[d] || DEPT.other;
+      const groups = new Map();
+      for (const l of shown.filter((x) => x.d === d)) { const k = keyOf(l); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(l); }
+      const arr = [...groups.entries()].map(([k, ls]) => ({ k: d + ":" + k, ls, done: ls.every(resolved) })).sort((a, b) => a.done - b.done);
+      const left = arr.filter((g) => !g.done).length;
+      const closed = ui.collapsed[runner + d] ?? false;
+      const sec = el("section", { class: "dept" }, el("button", { class: "dept-h", "aria-expanded": String(!closed), onclick: () => { ui.collapsed[runner + d] = !closed; render(); } },
+        el("span", { class: "ico", "aria-hidden": "true" }, def.icon), el("h2", {}, def.name), el("span", { class: "count num" }, left ? `${left} left` : "Done"), el("span", { class: "muted", "aria-hidden": "true" }, closed ? "+" : "−")));
+      if (!closed) for (const g of arr) sec.append(pickRow(T, g, runner));
+      box.append(sec);
+    }
+    if (s.units && s.got >= s.units) box.append(el("div", { class: "banner ok" }, "Everything on this list is handled."), el("button", { class: "btn primary wide", onclick: () => go("checkout") }, "Go to checkout"));
+    return box;
+  }
+  function pickRow(T, g, runner) {
+    const ls = g.ls, f = ls[0];
+    const units = ls.reduce((n, l) => n + l.q, 0);
+    const anyOos = ls.some((l) => l.st === "oos"), anyPart = ls.some((l) => l.st === "partial" || l.st === "needsub");
+    const open = ui.openKey === g.k;
+    const row = el("div", { class: "pick" + (g.done ? (ls.every((l) => l.st === "oos") ? " done oos" : " done") : anyPart || anyOos ? " part" : "") });
+    row.append(el("div", { class: "qty num" }, el("div", {}, TP.fmtQty(units), ls.length > 1 ? el("small", {}, `${ls.length} bags`) : null)));
+    row.append(el("button", { class: "body", "aria-expanded": String(open), onclick: () => { ui.openKey = open ? null : g.k; render(); } },
+      el("div", { class: "name" }, f.n), el("div", { class: "meta" }, [f.s, f.b && !TP.normName(f.n).includes(TP.normName(f.b)) ? f.b : "", f.a ? "Aisle " + f.a : ""].filter(Boolean).join(", ")),
+      el("div", { class: "tags" }, ls.map((l) => tag(T, l.c, ls.length > 1 || l.q !== 1 ? TP.fmtQty(l.q) + " for" : "For"))),
+      ls.filter((l) => l.note).map((l) => el("div", { class: "note" }, `${custName(custOf(T, l.c))}: ${l.note}`)),
+      ls.filter((l) => l.st && l.st !== "open" && l.st !== "picked").map((l) => el("div", { class: "note" }, `${custName(custOf(T, l.c))}: ${statusText(l)}`))));
+    row.append(el("button", { class: "check", disabled: store.readOnly, "aria-label": g.done ? `Undo ${f.n}` : `Mark ${f.n} picked`, onclick: () => (g.done ? unpick(T, ls) : pick(T, ls.filter((l) => !resolved(l)))) }, el("span", { "aria-hidden": "true" }, "✓")));
+    if (open) row.append(el("div", { class: "more" }, ls.map((l) => el("div", { class: "lineops stack" },
+      el("div", { class: "row" }, el("div", { class: "grow" }, tag(T, l.c, TP.fmtQty(l.q) + " for")), el("span", { class: "muted small" }, `${RUNNERS[l.r]}’s Favor order`)),
+      l.sub ? el("p", { class: "muted small" }, "If out: " + l.sub) : null,
+      el("div", { class: "row" },
+        l.q > 1 ? el("div", { class: "step" }, el("button", { "aria-label": "One fewer", onclick: () => setPicked(T, l, (resolved(l) && l.st === "picked" ? l.q : l.pk || 0) - 1) }, "−"), el("output", { class: "num" }, `${TP.fmtQty(l.st === "picked" ? l.q : l.pk || 0)} of ${TP.fmtQty(l.q)}`), el("button", { "aria-label": "One more", onclick: () => setPicked(T, l, (l.st === "picked" ? l.q : l.pk || 0) + 1) }, "+")) : null,
+        el("button", { class: "btn sm", onclick: () => setLines(T, [l], l.st === "oos" ? { st: "open", pk: 0 } : { st: "oos", pk: 0 }) }, l.st === "oos" ? "Back in stock" : "Out of stock"),
+        el("button", { class: "btn sm", onclick: () => subSheet(T, l) }, "Substitute"),
+        el("button", { class: "btn sm", onclick: () => { patchTrip(ui.tripId, { lines: { [l.id]: { as: other(runner) } } }); toast(`Handed to ${RUNNERS[other(runner)]}.`); } }, `Give to ${RUNNERS[other(runner)]}`))))));
+    return row;
+  }
+  const statusText = (l) => ({ partial: `${TP.fmtQty(l.pk || 0)} of ${TP.fmtQty(l.q)} so far`, oos: "out of stock", needsub: "needs a substitute", subbed: "substituted with " + (l.sn || "something else") }[l.st] || "");
+
+  function vCheckout(T) {
+    const ls = linesOf(T), box = el("div", { class: "stack" }, el("h1", {}, "Checkout"), sampleNote(T));
+    if (!ls.length) { box.append(el("p", { class: "muted" }, "Nothing to check out yet.")); return box; }
+    const cids = Object.keys(T.cust || {}).filter((cid) => ls.some((l) => l.c === cid));
+    const state = (cid) => { const mine = ls.filter((l) => l.c === cid); const open = mine.filter((l) => !resolved(l) && l.st !== "partial"); return { mine, open, ok: !open.length && !!(T.ver && T.ver[cid] && T.ver[cid].ok) }; };
+    const ready = cids.filter((cid) => state(cid).ok).length;
+    box.append(el("div", { class: "banner " + (ready === cids.length ? "ok" : "plain") }, `${ready} of ${plural(cids.length, "order")} ready to scan. Sort the carts by bag letter, then scan each customer’s items under that customer’s own Favor order.`));
+    for (const r of ["jere", "jesica"]) {
+      const mineC = cids.filter((cid) => T.cust[cid].r === r);
+      if (!mineC.length) continue;
+      box.append(el("h2", { class: "who-" + r, style: "margin-top:22px" }, `Scan on ${RUNNERS[r]}’s Favor`));
+      for (const cid of mineC) {
+        const { mine, open, ok } = state(cid);
+        const units = mine.reduce((n, l) => n + l.q, 0), got = mine.reduce((n, l) => n + (l.st === "picked" || l.st === "subbed" ? l.q : l.st === "partial" ? l.pk || 0 : 0), 0);
+        const issues = mine.filter((l) => l.st === "oos" || l.st === "partial" || l.st === "subbed" || l.st === "needsub");
+        const flagged = mine.filter((l) => l.fl && l.fl.length).length;
+        const card = el("div", { class: "card stack" },
+          el("div", { class: "row" }, el("div", { class: "grow" }, tag(T, cid)), el("span", { class: "pill " + (ok ? "ok" : open.length ? "bad" : "warn") }, ok ? "Ready to scan" : open.length ? `${open.length} still to pick` : "Check the bag")),
+          el("p", { class: "num" }, `${TP.fmtQty(got)} of ${TP.fmtQty(units)} units in the cart, ${plural(mine.length, "line")}`),
+          open.length ? el("div", { class: "banner bad" }, "Not picked yet: " + open.map((l) => `${TP.fmtQty(l.q)} × ${l.n} (${RUNNERS[assignee(T, l)]})`).join("; ")) : null,
+          issues.length ? el("div", { class: "banner" }, issues.map((l) => `${l.n}: ${statusText(l)}`).join("; ") + ". Update the Favor order to match.") : null,
+          flagged ? el("p", { class: "flagtxt" }, `${plural(flagged, "item")} on this order still marked to check on the Review screen.`) : null,
+          el("details", {}, el("summary", {}, "All items on this order"), mine.map((l) => el("div", { class: "row small", style: "padding:5px 0;border-top:1px solid var(--line)" }, el("b", { class: "num", style: "width:34px" }, TP.fmtQty(l.q)), el("span", { class: "grow" }, l.n + (l.s ? ", " + l.s : "")), el("span", { class: "muted" }, l.st === "picked" ? `${RUNNERS[l.by] || RUNNERS[assignee(T, l)]} has it` : statusText(l) || `with ${RUNNERS[assignee(T, l)]}`)))),
+          el("label", { class: "row", style: "font-weight:600;min-height:44px" }, el("input", { type: "checkbox", style: "width:24px;height:24px", checked: ok, disabled: !!open.length || store.readOnly, onchange: (e) => patchTrip(ui.tripId, { ver: { [cid]: { ok: e.target.checked, by: ui.me || "", at: Date.now() } } }) }), el("span", { class: "grow" }, open.length ? "Finish picking before checking this bag" : `I checked bag ${tagLetter(custOf(T, cid))} against this order`)));
+        box.append(card);
+      }
+    }
+    if (ready === cids.length && !T.done) box.append(el("button", { class: "btn primary wide", onclick: () => { patchTrip(ui.tripId, { done: true, t1: Date.now() }); toast("Trip finished."); } }, "Finish the trip"));
+    if (T.done && T.t0 && T.t1) box.append(el("p", { class: "muted" }, `Finished. First pick to done took ${Math.round((T.t1 - T.t0) / 60000)} min (measured).`));
+    return box;
+  }
+
+  /* ---------- sample orders (clearly labelled as made up) ---------- */
+  function sampleTrip() {
+    const raw = {
+      "jere|Sydney": "H-E-B Whole Milk|1 gal|2|dairy;Large Grade A Eggs|12 ct|1|dairy;H-E-B Salted Butter|16 oz|1|dairy;Bananas|each|6|produce;Hass Avocados|each|4|produce;Roma Tomatoes|each|5|produce;Yellow Onion|each|2|produce;Boneless Skinless Chicken Breast|about 2 lb|1|meat;Ground Beef 80/20|1 lb|2|meat;Atlantic Salmon Fillet|about 1 lb|1|seafood;H-E-B Bakery Flour Tortillas|10 ct|1|bakery;Long Grain White Rice|2 lb|1|pantry;Black Beans|15 oz|3|canned;Tortilla Chips|13 oz|1|snacks;Mineral Water|12 pk|1|beverages;Paper Towels|6 rolls|1|household",
+      "jere|Marcus": "Shredded Cheddar Cheese|8 oz|2|dairy;H-E-B Whole Milk|1/2 gal|1|dairy;Greek Yogurt Vanilla|5.3 oz|4|dairy;Sliced Oven Roasted Turkey|1/2 lb|1|deli|Sliced thin please;Baby Spinach|5 oz|1|produce;Bananas|each|4|produce;Lemons|each|3|produce;Thick Cut Bacon|16 oz|1|meat;Sourdough Loaf|each|1|bakery;Spaghetti|16 oz|2|pantry;Marinara Sauce|24 oz|1|pantry;Diced Tomatoes|14.5 oz|2|canned;Frozen Pepperoni Pizza|each|2|frozen;Vanilla Ice Cream|1.5 qt|1|frozen;Sparkling Water Lime|8 pk|2|beverages;Dish Soap|19 oz|1|cleaning",
+      "jesica|Sherry": "Large Grade A Eggs|12 ct|2|dairy;Greek Yogurt Strawberry|5.3 oz|4|dairy;Unsalted Butter|16 oz|1|dairy;Strawberries|1 lb|2|produce;Red Bell Pepper|each|2|produce;Cilantro|bunch|1|produce;Rotisserie Chicken|each|1|prepared;Raw Peeled Shrimp|1 lb|1|seafood;Blueberry Muffins|4 ct|1|bakery;Honey Wheat Bread|20 oz|1|bakery;Creamy Peanut Butter|16 oz|1|pantry;Chicken Broth|32 oz|2|canned;Frozen Broccoli Florets|12 oz|2|frozen;Orange Juice No Pulp|52 oz|1|beverages;Shampoo|12 oz|1|hb;Toothpaste|4.8 oz|2|hb;Ibuprofen 200 mg|100 ct|1|pharmacy",
+      "jesica|Dana": "H-E-B Whole Milk|1 gal|1|dairy;Sour Cream|16 oz|1|dairy;Hass Avocados|each|2|produce;Yellow Onion|each|3|produce;Jalapeño Peppers|each|4|produce;Ground Beef 80/20|1 lb|1|meat;Bone-In Pork Chops|about 1.5 lb|1|meat;Sliced Provolone|1/2 lb|1|deli;H-E-B Bakery Flour Tortillas|10 ct|2|bakery;Black Beans|15 oz|2|canned;Medium Salsa|16 oz|1|pantry;Tortilla Chips|13 oz|2|snacks;Frozen Waffles|10 ct|1|frozen;Cola|12 pk|1|beverages;Diapers Size 4|64 ct|1|baby;Dry Dog Food|15 lb|1|pet;Laundry Detergent|92 oz|1|cleaning;Trash Bags 13 gal|40 ct|1|household",
+    };
+    const T = { name: "Sample trip", store: "", createdAt: Date.now(), by: ui.me || "", sample: true, owners: {}, pins: {}, cust: {}, lines: {}, ver: {} };
+    let t = 0, o = 1;
+    for (const [who, rows] of Object.entries(raw)) {
+      const [r, n] = who.split("|"); const cid = "c" + uid();
+      T.cust[cid] = { n, r, t: t++ };
+      for (const row of rows.split(";")) { const [name, s, q, d, note] = row.split("|"); T.lines["l" + uid()] = { n: name, b: "", s, q: Number(q), c: cid, r, d, a: "", note: note || "", sub: "", cf: 1, fl: [], src: "sample", st: "open", pk: 0, o: o++ }; }
+    }
+    const ids = Object.keys(T.lines);
+    T.lines[ids[9]].fl = ["qty"]; T.lines[ids[40]].fl = ["conf"]; T.lines[ids[55]].fl = ["cut"];
+    T.owners = ownersFor(T, "auto");
+    return T;
+  }
+
+  /* ---------- shell ---------- */
+  function setMe(r) { ui.me = r; lsSet("tp.me", r); render(); }
+  function openTrip(id, view) {
+    ui.tripId = id; lsSet("tp.trip", id); ui.q = ""; ui.openKey = null;
+    const T = tripView(id);
+    go(view || (T && linesOf(T).length ? ui.me || "jere" : "orders"));
+  }
+  function go(view) {
+    ui.view = view; closeSheet();
+    try { if (location.hash !== "#" + view) location.hash = view; } catch {}
+    render(); window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (VIEWS.includes(v) && v !== ui.view) { ui.view = v; render(); window.scrollTo(0, 0); } });
+  const NAV = [["orders", "Orders", "M12 5v14M5 12h14"], ["review", "Review", "M4 6h16M4 12h10M4 18h7M17 16l2 2 3-4"], ["split", "Split", "M12 3v18M5 8l-2 4 2 4M19 8l2 4-2 4"], ["list", "My list", "M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"], ["checkout", "Checkout", "M4 5h2l2 11h10l2-8H7M9 20h.01M17 20h.01"]];
+  function render() {
+    const active = document.activeElement, fk = active && active.dataset ? active.dataset.fk : null, selAt = fk ? active.selectionStart : null;
+    const T = cur();
+    if (!T && ui.view !== "home" && store.mode !== "loading") ui.view = "home";
+    const v = T ? ui.view : "home";
+    const top = document.getElementById("top");
+    top.replaceChildren(el("div", { class: "top-in" },
+      el("button", { class: "mark", onclick: () => go("home"), "aria-label": "TeamPick, all trips" }, "Team", el("i", {}, "Pick")),
+      el("div", { class: "top-trip" }, T && v !== "home" ? [el("b", {}, [T.name, T.store].filter(Boolean).join(", ")), store.readOnly ? "View only" : store.mode === "cloud" ? (store.stale ? "May be out of date" : "Shared live") : "On this phone only"] : null),
+      el("button", { class: "me " + (ui.me || ""), onclick: () => setMe(ui.me === "jere" ? "jesica" : "jere"), "aria-label": ui.me ? `You are ${RUNNERS[ui.me]}. Switch shopper` : "Choose who you are" }, ui.me ? RUNNERS[ui.me] : "Who are you?")));
+    const main = document.getElementById("view");
+    main.replaceChildren(v === "home" ? vHome() : v === "orders" ? vOrders(T) : v === "review" ? vReview(T) : v === "split" ? vSplit(T) : v === "checkout" ? vCheckout(T) : vList(T, v));
+    if (store.readOnly && v !== "home") main.prepend(el("div", { class: "banner", style: "margin-bottom:14px" }, "You can see this trip but not change it. Ask the page’s owner to share it with you as an editor."));
+    const nav = document.getElementById("nav");
+    if (!T || v === "home") nav.hidden = true;
+    else {
+      nav.hidden = false;
+      const flagged = stats(T).flagged;
+      nav.replaceChildren(el("div", { class: "nav-in" }, NAV.map(([id, label, d]) => {
+        const target = id === "list" ? ui.me || "jere" : id;
+        const on = id === "list" ? v === "jere" || v === "jesica" : v === id;
+        return el("button", { "aria-current": on ? "page" : null, onclick: () => go(target) }, icon(d), label, id === "review" && flagged ? el("span", { class: "badge" }, flagged) : null);
+      })));
+    }
+    if (fk) { const again = document.querySelector(`[data-fk="${fk}"]`); if (again) { again.focus(); try { again.setSelectionRange(selAt, selAt); } catch {} } }
+  }
+
+  /* ---------- start ---------- */
+  async function boot() {
+    const h = location.hash.slice(1);
+    if (VIEWS.includes(h)) ui.view = h;
+    render();
+    const use = (n) => { try { return window.claude && window.claude.use ? window.claude.use(n).catch(() => null) : Promise.resolve(null); } catch { return Promise.resolve(null); } };
+    use("sample").then(async (s) => {
+      cap.sample = s || null;
+      if (s) { const lim = await s.limits().catch(() => null); cap.maxImages = (lim && lim.images && lim.images.maxCount) || 0; }
+      cap.sampleReady = true; render();
+    });
+    use("user").then(async (u) => { if (!u) return; const can = await u.can("data.write"); if (can === false) { store.readOnly = true; render(); } });
+    const db = await use("db");
+    if (!db) {
+      store.mode = "local"; store.snap = loadLocal();
+      try { deptMap = JSON.parse(lsGet("tp.deptmap") || "{}") || {}; } catch {}
+      render(); return;
+    }
+    cap.db = db;
+    const timer = setTimeout(() => { store.stale = true; render(); }, 10000);
+    db.collection("trips").orderBy("createdAt", "desc").limit(30).onSnapshot((snap) => {
+      if (!snap.metadata.fromCache) { clearTimeout(timer); store.stale = false; }
+      const next = {};
+      for (const d of snap.docs) next[d.id] = d.data();
+      store.snap = next; store.mode = "cloud";
+      if (!snap.metadata.hasPendingWrites) for (const q of Object.values(Q)) if (!q.busy) q.settled = null;
+      render();
+    }, () => {
+      clearTimeout(timer);
+      store.mode = "local"; store.snap = loadLocal();
+      toast("Shared trips can’t be reached. Anything you do now stays on this phone.");
+      render();
+    });
+    db.doc("prefs/deptmap").onSnapshot((s) => { const m = s.exists ? s.data().m : null; deptMap = m && typeof m === "object" ? { ...m } : {}; }, () => {});
+  }
+  boot();
+})();
+
+</script>
+</body>
+</html>

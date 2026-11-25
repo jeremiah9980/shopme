@@ -1,0 +1,13 @@
+{
+  "name": "team-pick",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TeamPick: two Favor runners, one coordinated H-E-B shopping trip.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && node scripts/dev.mjs",
+    "test": "node tests/logic.test.mjs && node tests/api.test.mjs"
+  }
+}
